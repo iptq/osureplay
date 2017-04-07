@@ -1,0 +1,23 @@
+{
+  "name": "osureplay",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "asyncawait": "^1.0.6",
+    "bluebird": "^3.5.0",
+    "canvas": "^1.6.5",
+    "epipebomb": "^1.0.0",
+    "lzma": "^2.3.2",
+    "lzma-native": "^2.0.1",
+    "md5-file": "^3.1.1",
+    "osu-parser": "^0.3.3",
+    "pypacker": "^0.2.1",
+    "unzip": "^0.1.11"
+  }
+}

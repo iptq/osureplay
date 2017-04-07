@@ -1,0 +1,240 @@
+#!/usr/bin/env node
+
+const Canvas = require("canvas"),
+	Image = Canvas.Image;
+const async = require("asyncawait/async");
+const await = require("asyncawait/await");
+const bluebird = require("bluebird");
+const fs = bluebird.promisifyAll(require("fs"));
+const child_process = require("child_process");
+const unzip = require("unzip");
+const packer = require("pypacker");
+const lzma = require("lzma");
+const md5File = bluebird.promisify(require("md5-file"));
+const osuParser = bluebird.promisifyAll(require("osu-parser"));
+
+const FPS = 60; // todo adjust
+const WIDTH = 1920;
+const HEIGHT = 1080;
+
+if (process.argv.length < 5) {
+	console.log(`Usage: ${process.argv[1]} [osr] [osz] [mp4 out]`);
+}
+
+let randomString = function (length) {
+	length = length || 12;
+	let alphabet = "abcdefghijklmnopqrstuvwxyz"; alphabet += alphabet.toUpperCase();
+	let string = "";
+	for (let i = 0; i < length; i += 1) {
+		let index = ~~(Math.random() * alphabet.length);
+		string += alphabet.charAt(index);
+	}
+	return string;
+};
+
+let decompress = function(data) {
+	return new Promise(function(resolve) {
+		lzma.decompress(data, function(result, err) {
+			resolve(result);
+		})
+	});
+};
+
+let extract = function(zip, folder) {
+	return new Promise(function (resolve) {
+		fs.createReadStream(zip).pipe(unzip.Extract({ path: folder })).on("close", function() {
+			resolve();
+		});
+	});
+};
+
+let saveCanvas = function(canvas, outFile) {
+	return new Promise(function (resolve) {
+		let stream = canvas.pngStream();
+		let out = fs.createWriteStream(outFile);
+		stream.on("chunk", function() {
+			out.write(chunk);
+		});
+		stream.on("end", function() {
+			resolve();
+		});
+	});
+};
+
+let pad = function(num, size) {
+	var s = num+"";
+	while (s.length < size) s = "0" + s;
+	return s;
+}
+
+let readReplay = async(function (replayData) {
+	class Reader {
+		constructor(data) {
+			this.data = data;
+			this.offset = 0;
+		}
+		readByte() {
+			let d = new packer("<b").unpack(this.data.slice(this.offset, this.offset + 1));
+			this.offset += 1;
+			return d[0];
+		}
+		readShort() {
+			let d = new packer("<h").unpack(this.data.slice(this.offset, this.offset + 2));
+			this.offset += 2;
+			return d[0];
+		}
+		readInt() {
+			let d = new packer("<I").unpack(this.data.slice(this.offset, this.offset + 4));
+			this.offset += 4;
+			return d[0];
+		}
+		readString(length) {
+			let d = this.data.slice(this.offset, this.offset + length).toString("utf-8");
+			this.offset += length;
+			return d;
+		}
+	}
+	let reader = new Reader(replayData);
+	let replay = {};
+	replay.gameMode = reader.readByte();
+	replay.gameVersion = reader.readInt();
+	reader.readByte(); // 0x0b
+	let hashLength = reader.readByte();
+	replay.beatmapHash = reader.readString(hashLength);
+	reader.readByte(); // 0x0b
+	let unameLength = reader.readByte();
+	replay.playerName = reader.readString(unameLength);
+	reader.readByte(); // 0x0b
+	hashLength = reader.readByte();
+	replay.replayHash = reader.readString(hashLength);
+	replay.hit300 = reader.readShort();
+	replay.hit100 = reader.readShort();
+	replay.hit50 = reader.readShort();
+	replay.gekis = reader.readShort();
+	replay.katus = reader.readShort();
+	replay.misses = reader.readShort();
+	replay.score = reader.readInt();
+	replay.maxCombo = reader.readShort();
+	replay.fc = reader.readByte() == 1;
+	replay.mods = reader.readInt();
+	if (reader.readByte()) {
+		let lifeBarLength = reader.readByte();
+		replay.lifeBar = reader.readString(lifeBarLength);
+	}
+	// fuck timestamp
+	reader.readInt(); reader.readInt();
+	let replayLength = reader.readInt();
+	let rawMovementData = reader.data.slice(reader.offset);
+	replay.movementData = await (decompress(rawMovementData));
+	return replay;
+});
+
+let start = async (function() {
+	try { // create working directory
+		await(fs.mkdirAsync("wd"));
+	} catch (e) { /* whatever lol */ }
+
+	let replayPath = await (fs.realpathAsync(process.argv[2]));
+	let mapPath = await (fs.realpathAsync(process.argv[3]));
+	let outputFile = process.argv[4];
+	if (!await(fs.statAsync(replayPath))) throw new Error("can't find replay");
+	if (!await(fs.statAsync(mapPath))) throw new Error("can't find map");
+
+	let folderName;
+	while (true) {
+		folderName = "wd/" + randomString();
+		try {
+			await(fs.mkdirAsync(folderName));
+			break;
+		} catch (e) { }
+	}
+	folderName = await (fs.realpathAsync(folderName));
+	console.log("working directory:", folderName);
+
+	let replayData = await (fs.readFileAsync(process.argv[2]));
+	let replay = await (readReplay(replayData));
+	// console.log(replay);
+
+	let mapFolder = folderName + "/map";
+	try {
+		await(fs.mkdirAsync(mapFolder));
+	} catch (e) { }
+
+	// extract map
+	await (extract(mapPath, mapFolder));
+
+	let files = await(fs.readdirAsync(mapFolder));
+	let mapFile = null;
+	for (let filename of files) {
+		if (filename.endsWith(".osu")) {
+			if (replay.beatmapHash === await(md5File(mapFolder + "/" + filename))) {
+				mapFile = mapFolder + "/" + filename;
+				break;
+			}
+		}
+	}
+
+	if (mapFile === null) {
+		process.stderr.write("fuck off\n");
+		process.exit(1);
+	}
+	let map = await(osuParser.parseFileAsync(mapFile));
+	// console.log(map);
+
+	let frameCount = map.totalTime * FPS;
+	console.log(frameCount);
+
+	let backgroundImage = new Image();
+	backgroundImage.src = await(fs.readFileAsync(mapFolder + "/" + map.bgFilename));
+
+	let sec;
+	let canvas = new Canvas(WIDTH, HEIGHT);
+	let ctx = canvas.getContext("2d");
+	let recorder = child_process.spawn("ffmpeg", ["-y", "-f", "image2pipe", "-vcodec", "png", "-r", "60", "-i", "-", "-vcodec", "h264", "-r", "60", folderName + "/noaudio.mp4"]);
+	recorder.stdout.on("data", function(e) {
+		var output = "";
+		for (var i = 0; i < e.length; i++) {
+			output += String.fromCharCode(e[i]);
+		};
+		console.log(output);
+	});
+	recorder.stderr.on("data", function(e) {
+		var output = "";
+		for (var i = 0; i < e.length; i++) {
+			output += String.fromCharCode(e[i]);
+		};
+		console.error(output);
+	});
+	recorder.on("SIGPIPE", function() {
+		console.log("wut");
+	});
+	recorder.stdout.on("error", function( err ) {
+		console.error(err);
+	});
+	for (let i = 0; i < 240; ++i) {
+		sec = frameCount / 60.0;
+		ctx.clearRect(0, 0, WIDTH, HEIGHT);
+		ctx.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
+		ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+		ctx.fillRect(0, 0, WIDTH, HEIGHT);
+		let framePNG = canvas.toDataURL().replace("data:image/png;base64,", "");
+		recorder.stdin.write(Buffer.from(framePNG, "base64"), "binary");
+		console.log("Processed frame " + i + ".");
+	}
+	recorder.stdin.end();
+
+	// mix audio
+	var mixer = child_process.spawn("ffmpeg", [
+		"-y", "-i", mapFolder + "/noaudio.mp4",
+		"-itsoffset", "00:00:" + "00",
+		"-i", mapFolder + "/" + map.AudioFilename,
+		"-vcodec", "copy",
+		"-acodec", "libmp3lame",
+		"-shortest", outputFile
+	]);
+	mixer.on("close", function() {
+		console.log("Done");
+	});
+});
+
+start();
