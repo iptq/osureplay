@@ -223,6 +223,8 @@ let start = async (function() {
 	backgroundImage.src = await(fs.readFileAsync(mapFolder + "/" + map.bgFilename));
 	let cursorImage = new Image();
 	cursorImage.src = await(fs.readFileAsync("skin/cookie/cursor.png"));
+	let cursorTrailImage = new Image();
+	cursorTrailImage.src = await(fs.readFileAsync("skin/cookie/cursortrail.png"));
 
 	let sec;
 	let canvas = new Canvas(WIDTH, HEIGHT);
@@ -249,6 +251,8 @@ let start = async (function() {
 		mouseMovements[i].time = mouseMovements[i-1].time + mouseMovements[i].dt;
 	}
 
+	let prevMousePositions = [];
+	var tmpcanvas, tmpcontext;
 	for (let i = 0; i < 400; ++i) {
 		sec = i * 1000 / 60.0;
 		ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -256,21 +260,32 @@ let start = async (function() {
 		ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
 		ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-		// console.log(mouseMovements[0].time, sec);
 		while (mouseMovements[0].time <= sec) {
-			// console.log(mouseMovements[0]);
 			mx = mouseMovements[0].x;
 			my = mouseMovements[0].y;
 			mouseMovements = mouseMovements.slice(1);
 		}
-		// console.log("mouse at (" + mx + ", " + my + ")");
+		for (let i in prevMousePositions) {
+			tmpcanvas = new Canvas(CURSOR_SIZE, CURSOR_SIZE);
+			tmpcontext = tmpcanvas.getContext("2d");
+			tmpcontext.globalAlpha = (i / prevMousePositions.length);
+			let [px, py] = prevMousePositions[i];
+			let [sx, sy] = toScreenCoords(px, py);
+			tmpcontext.drawImage(cursorTrailImage, 0, 0, CURSOR_SIZE, CURSOR_SIZE);
+			ctx.drawImage(tmpcanvas, sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
+		}
 		let [sx, sy] = toScreenCoords(mx, my);
 		ctx.drawImage(cursorImage, sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
+		prevMousePositions.push([mx, my]);
+		if (prevMousePositions.length > 8) {
+			prevMousePositions = prevMousePositions.slice(prevMousePositions.length - 6);
+		}
 
 		await (writeFrame(canvas, recorder));
 		console.log("Processed frame " + i + ".");
 	}
 
+	recorder.stdin.end();
 	recorder.on("close", function() {
 		// mix audio
 		var mixer = child_process.spawn("ffmpeg", [
@@ -299,7 +314,6 @@ let start = async (function() {
 			console.log("Done");
 		});
 	});
-	recorder.stdin.end();
 });
 
 start();
