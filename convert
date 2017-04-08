@@ -254,8 +254,7 @@ let start = async (function() {
 	}
 
 	let prevMousePositions = [];
-	var tmpcanvas, tmpcontext;
-	for (let i = 0; i < 400; ++i) {
+	for (let i = 0; i < 4000; ++i) {
 		sec = i * 1000 / 60.0;
 		ctx.clearRect(0, 0, WIDTH, HEIGHT);
 		ctx.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
@@ -268,14 +267,12 @@ let start = async (function() {
 			mouseMovements = mouseMovements.slice(1);
 		}
 		for (let i in prevMousePositions) {
-			tmpcanvas = new Canvas(CURSOR_SIZE, CURSOR_SIZE);
-			tmpcontext = tmpcanvas.getContext("2d");
-			tmpcontext.globalAlpha = (i / prevMousePositions.length);
+			ctx.globalAlpha = (i / prevMousePositions.length);
 			let [px, py] = prevMousePositions[i];
 			let [sx, sy] = toScreenCoords(px, py);
-			tmpcontext.drawImage(cursorTrailImage, 0, 0, CURSOR_SIZE, CURSOR_SIZE);
-			ctx.drawImage(tmpcanvas, sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
+			ctx.drawImage(cursorTrailImage, sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
 		}
+		ctx.globalAlpha = 1;
 		let [sx, sy] = toScreenCoords(mx, my);
 		ctx.drawImage(cursorImage, sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
 		prevMousePositions.push([mx, my]);
