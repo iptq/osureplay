@@ -14,6 +14,7 @@ const md5File = bluebird.promisify(require("md5-file"));
 const osuParser = bluebird.promisifyAll(require("osu-parser"));
 
 const FPS = 60; // todo adjust
+const CURSOR_SIZE = 40;
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
@@ -130,8 +131,8 @@ let readReplay = async(function (replayData) {
 		let parts = line.split("|");
 		return {
 			dt: parseInt(parts[0]),
-			dx: parseFloat(parts[1]),
-			dy: parseFloat(parts[2]),
+			x: parseFloat(parts[1]),
+			y: parseFloat(parts[2]),
 			keys: parseInt(parts[3])
 		};
 	});
@@ -153,6 +154,14 @@ let writeFrame = function(canvas, recorder) {
 			resolve();
 		});
 	});
+};
+
+let toScreenCoords = function(x, y) {
+	let ratio = 1080 / 384.0;
+	x *= ratio;
+	y *= ratio;
+	x += 240;
+	return [x, y];
 };
 
 let start = async (function() {
@@ -212,6 +221,8 @@ let start = async (function() {
 
 	let backgroundImage = new Image();
 	backgroundImage.src = await(fs.readFileAsync(mapFolder + "/" + map.bgFilename));
+	let cursorImage = new Image();
+	cursorImage.src = await(fs.readFileAsync("skin/cookie/cursor.png"));
 
 	let sec;
 	let canvas = new Canvas(WIDTH, HEIGHT);
@@ -231,37 +242,64 @@ let start = async (function() {
 		};
 		console.error(output);
 	});
-	recorder.on("SIGPIPE", function() {
-		console.log("wut");
-	});
-	recorder.stdout.on("error", function( err ) {
-		console.error(err);
-	});
-	for (let i = 0; i < 240; ++i) {
-		sec = frameCount / 60.0;
+	let mouseMovements = replay.movementData.slice(0);
+	let mx = 0, my = 0;
+	mouseMovements[0].time = mouseMovements[0].dt;
+	for (let i = 1; i < mouseMovements.length; ++i) {
+		mouseMovements[i].time = mouseMovements[i-1].time + mouseMovements[i].dt;
+	}
+
+	for (let i = 0; i < 400; ++i) {
+		sec = i * 1000 / 60.0;
 		ctx.clearRect(0, 0, WIDTH, HEIGHT);
 		ctx.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
 		ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
 		ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+		// console.log(mouseMovements[0].time, sec);
+		while (mouseMovements[0].time <= sec) {
+			// console.log(mouseMovements[0]);
+			mx = mouseMovements[0].x;
+			my = mouseMovements[0].y;
+			mouseMovements = mouseMovements.slice(1);
+		}
+		// console.log("mouse at (" + mx + ", " + my + ")");
+		let [sx, sy] = toScreenCoords(mx, my);
+		ctx.drawImage(cursorImage, sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
+
 		await (writeFrame(canvas, recorder));
-		// let framePNG = canvas.toDataURL().replace("data:image/png;base64,", "");
-		// recorder.stdin.write(Buffer.from(framePNG, "base64"), "binary");
 		console.log("Processed frame " + i + ".");
 	}
-	recorder.stdin.end();
 
-	// mix audio
-	var mixer = child_process.spawn("ffmpeg", [
-		"-y", "-i", mapFolder + "/noaudio.mp4",
-		"-itsoffset", "00:00:" + "00",
-		"-i", mapFolder + "/" + map.AudioFilename,
-		"-vcodec", "copy",
-		"-acodec", "libmp3lame",
-		"-shortest", outputFile
-	]);
-	mixer.on("close", function() {
-		console.log("Done");
+	recorder.on("close", function() {
+		// mix audio
+		var mixer = child_process.spawn("ffmpeg", [
+			"-y", "-i", folderName + "/noaudio.mp4",
+			"-itsoffset", "00:00:" + "00",
+			"-i", mapFolder + "/" + map.AudioFilename,
+			"-vcodec", "copy",
+			"-acodec", "libmp3lame",
+			"-shortest", outputFile
+		]);
+		mixer.stdout.on("data", function(e) {
+			var output = "";
+			for (var i = 0; i < e.length; i++) {
+				output += String.fromCharCode(e[i]);
+			};
+			console.log(output);
+		});
+		mixer.stderr.on("data", function(e) {
+			var output = "";
+			for (var i = 0; i < e.length; i++) {
+				output += String.fromCharCode(e[i]);
+			};
+			console.error(output);
+		});
+		mixer.on("close", function() {
+			console.log("Done");
+		});
 	});
+	recorder.stdin.end();
 });
 
 start();
