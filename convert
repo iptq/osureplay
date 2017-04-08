@@ -125,9 +125,35 @@ let readReplay = async(function (replayData) {
 	reader.readInt(); reader.readInt();
 	let replayLength = reader.readInt();
 	let rawMovementData = reader.data.slice(reader.offset);
-	replay.movementData = await (decompress(rawMovementData));
+	var movementData = await (decompress(rawMovementData));
+	replay.movementData = movementData.split(",").map(function(line) {
+		let parts = line.split("|");
+		return {
+			dt: parseInt(parts[0]),
+			dx: parseFloat(parts[1]),
+			dy: parseFloat(parts[2]),
+			keys: parseInt(parts[3])
+		};
+	});
+	console.log(replay);
 	return replay;
 });
+
+let writeFrame = function(canvas, recorder) {
+	return new Promise(function(resolve) {
+		let stream = canvas.jpegStream({
+			bufsize: 4096 // output buffer size in bytes, default: 4096
+			, quality: 75 // JPEG quality (0-100) default: 75
+			, progressive: false // true for progressive compression, default: false
+		});
+		stream.on("data", function(chunk) {
+			recorder.stdin.write(chunk);
+		});
+		stream.on("end", function() {
+			resolve();
+		});
+	});
+};
 
 let start = async (function() {
 	try { // create working directory
@@ -182,7 +208,7 @@ let start = async (function() {
 	// console.log(map);
 
 	let frameCount = map.totalTime * FPS;
-	console.log(frameCount);
+	// console.log(frameCount);
 
 	let backgroundImage = new Image();
 	backgroundImage.src = await(fs.readFileAsync(mapFolder + "/" + map.bgFilename));
@@ -190,7 +216,7 @@ let start = async (function() {
 	let sec;
 	let canvas = new Canvas(WIDTH, HEIGHT);
 	let ctx = canvas.getContext("2d");
-	let recorder = child_process.spawn("ffmpeg", ["-y", "-f", "image2pipe", "-vcodec", "png", "-r", "60", "-i", "-", "-vcodec", "h264", "-r", "60", folderName + "/noaudio.mp4"]);
+	let recorder = child_process.spawn("ffmpeg", ["-y", "-f", "image2pipe", "-vcodec", "mjpeg", "-r", "60", "-i", "-", "-vcodec", "h264", "-r", "60", folderName + "/noaudio.mp4"]);
 	recorder.stdout.on("data", function(e) {
 		var output = "";
 		for (var i = 0; i < e.length; i++) {
@@ -217,8 +243,9 @@ let start = async (function() {
 		ctx.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
 		ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
 		ctx.fillRect(0, 0, WIDTH, HEIGHT);
-		let framePNG = canvas.toDataURL().replace("data:image/png;base64,", "");
-		recorder.stdin.write(Buffer.from(framePNG, "base64"), "binary");
+		await (writeFrame(canvas, recorder));
+		// let framePNG = canvas.toDataURL().replace("data:image/png;base64,", "");
+		// recorder.stdin.write(Buffer.from(framePNG, "base64"), "binary");
 		console.log("Processed frame " + i + ".");
 	}
 	recorder.stdin.end();
