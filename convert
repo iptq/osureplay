@@ -18,6 +18,8 @@ const CURSOR_SIZE = 40;
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
+const Beatmap = require("./lib/Beatmap");
+
 if (process.argv.length < 5) {
 	console.log(`Usage: ${process.argv[1]} [osr] [osz] [mp4 out]`);
 }
@@ -136,7 +138,7 @@ let readReplay = async(function (replayData) {
 			keys: parseInt(parts[3])
 		};
 	});
-	console.log(replay);
+	// console.log(replay);
 	return replay;
 });
 
@@ -213,8 +215,8 @@ let start = async (function() {
 		process.stderr.write("fuck off\n");
 		process.exit(1);
 	}
-	let map = await(osuParser.parseFileAsync(mapFile));
-	// console.log(map);
+	let map = await(Beatmap.ParseFile(mapFile));
+	console.log(map);
 
 	let frameCount = map.totalTime * FPS;
 	// console.log(frameCount);
@@ -230,20 +232,20 @@ let start = async (function() {
 	let canvas = new Canvas(WIDTH, HEIGHT);
 	let ctx = canvas.getContext("2d");
 	let recorder = child_process.spawn("ffmpeg", ["-y", "-f", "image2pipe", "-vcodec", "mjpeg", "-r", "60", "-i", "-", "-vcodec", "h264", "-r", "60", folderName + "/noaudio.mp4"]);
-	recorder.stdout.on("data", function(e) {
-		var output = "";
-		for (var i = 0; i < e.length; i++) {
-			output += String.fromCharCode(e[i]);
-		};
-		console.log(output);
-	});
-	recorder.stderr.on("data", function(e) {
-		var output = "";
-		for (var i = 0; i < e.length; i++) {
-			output += String.fromCharCode(e[i]);
-		};
-		console.error(output);
-	});
+	// recorder.stdout.on("data", function(e) {
+	// 	var output = "";
+	// 	for (var i = 0; i < e.length; i++) {
+	// 		output += String.fromCharCode(e[i]);
+	// 	};
+	// 	console.log(output);
+	// });
+	// recorder.stderr.on("data", function(e) {
+	// 	var output = "";
+	// 	for (var i = 0; i < e.length; i++) {
+	// 		output += String.fromCharCode(e[i]);
+	// 	};
+	// 	console.error(output);
+	// });
 	let mouseMovements = replay.movementData.slice(0);
 	let mx = 0, my = 0;
 	mouseMovements[0].time = mouseMovements[0].dt;
@@ -282,34 +284,28 @@ let start = async (function() {
 		}
 
 		await (writeFrame(canvas, recorder));
-		console.log("Processed frame " + i + ".");
+		process.stdout.write("\rProcessed frame " + i + ".");
 	}
+	console.log();
 
 	recorder.stdin.end();
 	recorder.on("close", function() {
 		// mix audio
-		var mixer = child_process.spawn("ffmpeg", [
-			"-y", "-i", folderName + "/noaudio.mp4",
-			"-itsoffset", "00:00:" + "00",
-			"-i", mapFolder + "/" + map.AudioFilename,
-			"-vcodec", "copy",
-			"-acodec", "libmp3lame",
-			"-shortest", outputFile
-		]);
-		mixer.stdout.on("data", function(e) {
-			var output = "";
-			for (var i = 0; i < e.length; i++) {
-				output += String.fromCharCode(e[i]);
-			};
-			console.log(output);
-		});
-		mixer.stderr.on("data", function(e) {
-			var output = "";
-			for (var i = 0; i < e.length; i++) {
-				output += String.fromCharCode(e[i]);
-			};
-			console.error(output);
-		});
+		var mixer = child_process.spawn("ffmpeg", ["-y", "-i", folderName + "/noaudio.mp4", "-itsoffset", "00:00:" + "00", "-i", mapFolder + "/" + map.AudioFilename, "-vcodec", "copy", "-acodec", "libmp3lame", "-shortest", outputFile]);
+		// mixer.stdout.on("data", function(e) {
+		// 	var output = "";
+		// 	for (var i = 0; i < e.length; i++) {
+		// 		output += String.fromCharCode(e[i]);
+		// 	};
+		// 	console.log(output);
+		// });
+		// mixer.stderr.on("data", function(e) {
+		// 	var output = "";
+		// 	for (var i = 0; i < e.length; i++) {
+		// 		output += String.fromCharCode(e[i]);
+		// 	};
+		// 	console.error(output);
+		// });
 		mixer.on("close", function() {
 			console.log("Done");
 		});
