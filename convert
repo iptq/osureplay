@@ -17,8 +17,12 @@ const FPS = 60; // todo adjust
 const CURSOR_SIZE = 40;
 const WIDTH = 1920;
 const HEIGHT = 1080;
+const SWIDTH = 1536;
+const SHEIGHT = 864;
 
 const Beatmap = require("./lib/Beatmap");
+const Skin = require("./lib/Skin");
+const Util = require("./lib/Util");
 
 if (process.argv.length < 5) {
 	console.log(`Usage: ${process.argv[1]} [osr] [osz] [mp4 out]`);
@@ -158,12 +162,12 @@ let writeFrame = function(canvas, recorder) {
 	});
 };
 
-let toScreenCoords = function(x, y) {
-	let ratio = 1080 / 384.0;
-	x *= ratio;
-	y *= ratio;
-	x += 240;
-	return [x, y];
+let AR_time = function(n) {
+	return parseFloat((1.2 - (n >= 5 ? (n - 5) * 0.15 : (n - 5) * 0.12)).toFixed(4));
+};
+
+let CS_px = function (n) {
+    return 88 - 8 * (n - 2);
 };
 
 let start = async (function() {
@@ -187,6 +191,8 @@ let start = async (function() {
 	}
 	folderName = await (fs.realpathAsync(folderName));
 	console.log("working directory:", folderName);
+
+	await(Skin.loadImages());
 
 	let replayData = await (fs.readFileAsync(process.argv[2]));
 	let replay = await (readReplay(replayData));
@@ -216,17 +222,13 @@ let start = async (function() {
 		process.exit(1);
 	}
 	let map = await(Beatmap.ParseFile(mapFile));
-	console.log(map);
+	// console.log(map);
 
 	let frameCount = map.totalTime * FPS;
 	// console.log(frameCount);
 
 	let backgroundImage = new Image();
 	backgroundImage.src = await(fs.readFileAsync(mapFolder + "/" + map.bgFilename));
-	let cursorImage = new Image();
-	cursorImage.src = await(fs.readFileAsync("skin/cookie/cursor.png"));
-	let cursorTrailImage = new Image();
-	cursorTrailImage.src = await(fs.readFileAsync("skin/cookie/cursortrail.png"));
 
 	let sec;
 	let canvas = new Canvas(WIDTH, HEIGHT);
@@ -253,28 +255,51 @@ let start = async (function() {
 		mouseMovements[i].time = mouseMovements[i-1].time + mouseMovements[i].dt;
 	}
 
+	let AR = AR_time(map.ApproachRate);
+	let CS = CS_px(map.CircleSize);
+
 	let prevMousePositions = [];
-	for (let i = 0; i < 4000; ++i) {
-		sec = i * 1000 / 60.0;
+	let objCounter = 0;
+
+	for (let color of map.ComboColors) {
+		for (let texture of ["hitcircle", "approachcircle", "sliderb0"]) {
+			Skin.addImage(`${texture}-${color.hex()}`, color.tint(Skin.resources[texture]));
+		}
+	}
+
+	let gridcanvas2 = new Canvas();
+	let ctx2 = gridcanvas2.getContext("2d");
+	// console.log([map]);
+
+	for (let i = 0; i < 240; ++i) {
+		msec = i * 1000 / 60.0;
 		ctx.clearRect(0, 0, WIDTH, HEIGHT);
 		ctx.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
 		ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
 		ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-		while (mouseMovements[0].time <= sec) {
+		for (let j = 0; j < map.HitObjects.length; ++j) {
+			// if (j > 1) break;
+			let obj = map.HitObjects[j];
+			let dt = (obj.startTime - msec) / 1000.0;
+			obj.render(ctx, ctx2, msec, AR, CS);
+		}
+
+		while (mouseMovements[0].time <= msec) {
 			mx = mouseMovements[0].x;
 			my = mouseMovements[0].y;
 			mouseMovements = mouseMovements.slice(1);
 		}
 		for (let i in prevMousePositions) {
+			if (!parseInt(i)) continue;
 			ctx.globalAlpha = (i / prevMousePositions.length);
 			let [px, py] = prevMousePositions[i];
-			let [sx, sy] = toScreenCoords(px, py);
-			ctx.drawImage(cursorTrailImage, sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
+			let [sx, sy] = Util.toScreenCoords(px, py);
+			ctx.drawImage(Skin.resources["cursortrail"], sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
 		}
 		ctx.globalAlpha = 1;
-		let [sx, sy] = toScreenCoords(mx, my);
-		ctx.drawImage(cursorImage, sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
+		let [sx, sy] = Util.toScreenCoords(mx, my);
+		ctx.drawImage(Skin.resources["cursor"], sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
 		prevMousePositions.push([mx, my]);
 		if (prevMousePositions.length > 8) {
 			prevMousePositions = prevMousePositions.slice(prevMousePositions.length - 6);
