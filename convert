@@ -222,9 +222,16 @@ let start = async (function() {
 		process.exit(1);
 	}
 	let map = await(Beatmap.ParseFile(mapFile));
-	let parsedMap = await(osuParser.parseFileAsync(mapFile));
+	//let parsedMap = await(osuParser.parseFileAsync(mapFile));
 
-	let frameCount = parsedMap.totalTime * FPS;
+	let getMp3Duration = function() {
+		return new Promise(resolve => {
+			require('mp3-duration')(mapFolder + "/" + map.AudioFilename, (err, response) => resolve(response));
+		});
+	};
+	let mp3duration = await(getMp3Duration());
+	console.log("Audio Length: " + mp3duration);
+	let frameCount = Math.ceil(mp3duration * FPS);
 
 	let backgroundImage = new Image();
 	backgroundImage.src = await(fs.readFileAsync(mapFolder + "/" + map.bgFilename));
@@ -265,6 +272,14 @@ let start = async (function() {
 			Skin.addImage(`${texture}-${color.hex()}`, color.tint(Skin.resources[texture]));
 		}
 	}
+	for (let n = 10; n <= map.maxCombo; n++) {
+		let digits = [];
+		let n2 = n.toString();
+		for (let i = 0; i < n2.length; i++) {
+			digits.push(Skin.resources['default-' + n2.charAt(i)]);
+		}
+		Skin.addImage(`default-${n}`,Util.concatImages(digits, parseInt(Skin.options.HitCircleOverlap || 2, 10)));
+	}
 
 	let gridcanvas2 = new Canvas();
 	let ctx2 = gridcanvas2.getContext("2d");
@@ -272,13 +287,13 @@ let start = async (function() {
 
 	for (let i = 0; i < frameCount; ++i) {
 		try {
-			msec = i * 1000 / 60.0;
+			let msec = i * 1000 / 60.0;
 			ctx.clearRect(0, 0, WIDTH, HEIGHT);
 			ctx.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
-			ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+			ctx.fillStyle = "rgba(0, 0, 0, 0.9)";
 			ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-			for (let j = 0; j < map.HitObjects.length; ++j) {
+			for (let j = map.HitObjects.length - 1; j >= 0; --j) {
 				// if (j > 1) break;
 				let obj = map.HitObjects[j];
 				let dt = (obj.startTime - msec) / 1000.0;
