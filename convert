@@ -17,8 +17,8 @@ const FPS = 60; // todo adjust
 const CURSOR_SIZE = 40;
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const SWIDTH = 1536;
-const SHEIGHT = 864;
+const SWIDTH = 1280;
+const SHEIGHT = 720;
 
 const Beatmap = require("./lib/Beatmap");
 const Skin = require("./lib/Skin");
@@ -222,10 +222,9 @@ let start = async (function() {
 		process.exit(1);
 	}
 	let map = await(Beatmap.ParseFile(mapFile));
-	// console.log(map);
+	let parsedMap = await(osuParser.parseFileAsync(mapFile));
 
-	let frameCount = map.totalTime * FPS;
-	// console.log(frameCount);
+	let frameCount = parsedMap.totalTime * FPS;
 
 	let backgroundImage = new Image();
 	backgroundImage.src = await(fs.readFileAsync(mapFolder + "/" + map.bgFilename));
@@ -271,42 +270,44 @@ let start = async (function() {
 	let ctx2 = gridcanvas2.getContext("2d");
 	// console.log([map]);
 
-	for (let i = 0; i < 240; ++i) {
-		msec = i * 1000 / 60.0;
-		ctx.clearRect(0, 0, WIDTH, HEIGHT);
-		ctx.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
-		ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-		ctx.fillRect(0, 0, WIDTH, HEIGHT);
+	for (let i = 0; i < frameCount; ++i) {
+		try {
+			msec = i * 1000 / 60.0;
+			ctx.clearRect(0, 0, WIDTH, HEIGHT);
+			ctx.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
+			ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+			ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-		for (let j = 0; j < map.HitObjects.length; ++j) {
-			// if (j > 1) break;
-			let obj = map.HitObjects[j];
-			let dt = (obj.startTime - msec) / 1000.0;
-			obj.render(ctx, ctx2, msec, AR, CS);
-		}
+			for (let j = 0; j < map.HitObjects.length; ++j) {
+				// if (j > 1) break;
+				let obj = map.HitObjects[j];
+				let dt = (obj.startTime - msec) / 1000.0;
+				obj.render(ctx, ctx2, msec, AR, CS);
+			}
 
-		while (mouseMovements[0].time <= msec) {
-			mx = mouseMovements[0].x;
-			my = mouseMovements[0].y;
-			mouseMovements = mouseMovements.slice(1);
-		}
-		for (let i in prevMousePositions) {
-			if (!parseInt(i)) continue;
-			ctx.globalAlpha = (i / prevMousePositions.length);
-			let [px, py] = prevMousePositions[i];
-			let [sx, sy] = Util.toScreenCoords(px, py);
-			ctx.drawImage(Skin.resources["cursortrail"], sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
-		}
-		ctx.globalAlpha = 1;
-		let [sx, sy] = Util.toScreenCoords(mx, my);
-		ctx.drawImage(Skin.resources["cursor"], sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
-		prevMousePositions.push([mx, my]);
-		if (prevMousePositions.length > 8) {
-			prevMousePositions = prevMousePositions.slice(prevMousePositions.length - 6);
-		}
+			while (mouseMovements[0].time <= msec) {
+				mx = mouseMovements[0].x;
+				my = mouseMovements[0].y;
+				mouseMovements = mouseMovements.slice(1);
+			}
+			for (let i in prevMousePositions) {
+				if (!parseInt(i)) continue;
+				ctx.globalAlpha = (i / prevMousePositions.length);
+				let [px, py] = prevMousePositions[i];
+				let [sx, sy] = Util.toScreenCoords(px, py);
+				ctx.drawImage(Skin.resources["cursortrail"], sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
+			}
+			ctx.globalAlpha = 1;
+			let [sx, sy] = Util.toScreenCoords(mx, my);
+			ctx.drawImage(Skin.resources["cursor"], sx - CURSOR_SIZE / 2, sy - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE);
+			prevMousePositions.push([mx, my]);
+			if (prevMousePositions.length > 8) {
+				prevMousePositions = prevMousePositions.slice(prevMousePositions.length - 6);
+			}
 
-		await (writeFrame(canvas, recorder));
-		process.stdout.write("\rProcessed frame " + i + ".");
+			await (writeFrame(canvas, recorder));
+			process.stdout.write("\rProcessing " + (Math.round(i * 10000.00 / frameCount) / 100.0) + "%.          ");
+		} catch (e) { console.log("Frame " + i + " fucked up."); }
 	}
 	console.log();
 
