@@ -193,6 +193,7 @@ let start = async (function() {
 	console.log("working directory:", folderName);
 
 	await(Skin.loadImages());
+	Skin.options = await(Skin.ParseIni('cookie'));
 
 	let replayData = await (fs.readFileAsync(process.argv[2]));
 	let replay = await (readReplay(replayData));
@@ -283,12 +284,16 @@ let start = async (function() {
 
 	let gridcanvas2 = new Canvas();
 	let ctx2 = gridcanvas2.getContext("2d");
+	gridcanvas2.width = canvas.width;
+	gridcanvas2.height = canvas.height;
 	// console.log([map]);
 
-	for (let i = 0; i < frameCount; ++i) {
+	let END = /*frameCount*/ 400;
+	for (let i = 0; i < END; ++i) {
 		try {
 			let msec = i * 1000 / 60.0;
 			ctx.clearRect(0, 0, WIDTH, HEIGHT);
+			ctx2.clearRect(0, 0, WIDTH, HEIGHT);
 			ctx.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT);
 			ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
 			ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -299,6 +304,7 @@ let start = async (function() {
 				let dt = (obj.startTime - msec) / 1000.0;
 				obj.render(ctx, ctx2, msec, AR, CS);
 			}
+			ctx.drawImage(gridcanvas2, 0, 0);
 
 			while (mouseMovements[0].time <= msec) {
 				mx = mouseMovements[0].x;
@@ -321,8 +327,8 @@ let start = async (function() {
 			}
 
 			await (writeFrame(canvas, recorder));
-			process.stdout.write("\rProcessing " + (Math.round(i * 10000.00 / frameCount) / 100.0) + "%.          ");
-		} catch (e) { console.log("Frame " + i + " fucked up."); }
+			process.stdout.write("\rProcessing " + (Math.round((i + 1) * 10000.00 / END) / 100.0) + "%.          ");
+		} catch (e) { console.log("Frame " + i + " fucked up."); throw e; }
 	}
 	console.log();
 
