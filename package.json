@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "rm -rf wd && time ./convert example/$song/replay.osr example/$song/map.osz example/$song/video.mp4"
   },
   "author": "",
   "license": "ISC",
