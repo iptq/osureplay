@@ -17,8 +17,8 @@ const FPS = 60; // todo adjust
 const CURSOR_SIZE = 40;
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const SWIDTH = 992;
-const SHEIGHT = 744;
+const SWIDTH = 1024;
+const SHEIGHT = 768;
 
 const Beatmap = require("./lib/Beatmap");
 const Skin = require("./lib/Skin");
@@ -39,37 +39,37 @@ let randomString = function (length) {
 	return string;
 };
 
-let decompress = function(data) {
-	return new Promise(function(resolve) {
-		lzma.decompress(data, function(result, err) {
+let decompress = function (data) {
+	return new Promise(function (resolve) {
+		lzma.decompress(data, function (result, err) {
 			resolve(result);
 		})
 	});
 };
 
-let extract = function(zip, folder) {
+let extract = function (zip, folder) {
 	return new Promise(function (resolve) {
-		fs.createReadStream(zip).pipe(unzip.Extract({ path: folder })).on("close", function() {
+		fs.createReadStream(zip).pipe(unzip.Extract({ path: folder })).on("close", function () {
 			resolve();
 		});
 	});
 };
 
-let saveCanvas = function(canvas, outFile) {
+let saveCanvas = function (canvas, outFile) {
 	return new Promise(function (resolve) {
 		let stream = canvas.pngStream();
 		let out = fs.createWriteStream(outFile);
-		stream.on("chunk", function() {
+		stream.on("chunk", function () {
 			out.write(chunk);
 		});
-		stream.on("end", function() {
+		stream.on("end", function () {
 			resolve();
 		});
 	});
 };
 
-let pad = function(num, size) {
-	var s = num+"";
+let pad = function (num, size) {
+	var s = num + "";
 	while (s.length < size) s = "0" + s;
 	return s;
 }
@@ -142,55 +142,55 @@ let readReplay = async(function (replayData) {
 	reader.readInt(); reader.readInt();
 	let replayLength = reader.readInt();
 	let rawMovementData = reader.data.slice(reader.offset);
-	var movementData = await (decompress(rawMovementData));
+	var movementData = await(decompress(rawMovementData));
 	if (!movementData) {
 		process.stderr.write("Failed to parse movement data.\n");
 		process.exit(1);
 	}
-	replay.movementData = movementData.split(",").map(function(line) {
+	replay.movementData = movementData.split(",").map(function (line) {
 		let parts = line.split("|");
 		return {
 			dt: parseInt(parts[0]),
 			x: parseFloat(parts[1]),
 			y: parseFloat(parts[2]),
-			keys: parseInt(parts[3])
+			keyBits: parseInt(parts[3])
 		};
 	});
 	// console.log(replay);
 	return replay;
 });
 
-let writeFrame = function(canvas, recorder) {
-	return new Promise(function(resolve) {
+let writeFrame = function (canvas, recorder) {
+	return new Promise(function (resolve) {
 		let stream = canvas.jpegStream({
 			bufsize: 4096 // output buffer size in bytes, default: 4096
 			, quality: 75 // JPEG quality (0-100) default: 75
 			, progressive: false // true for progressive compression, default: false
 		});
-		stream.on("data", function(chunk) {
+		stream.on("data", function (chunk) {
 			recorder.stdin.write(chunk);
 		});
-		stream.on("end", function() {
+		stream.on("end", function () {
 			resolve();
 		});
 	});
 };
 
-let AR_time = function(n) {
+let AR_time = function (n) {
 	return parseFloat((1.2 - (n >= 5 ? (n - 5) * 0.15 : (n - 5) * 0.12)).toFixed(4));
 };
 
 let CS_px = function (n) {
-    return 88 - 8 * (n - 2);
+	return 88 - 8 * (n - 2);
 };
 
-let start = async (function() {
+let start = async(function () {
 	try { // create working directory
 		await(fs.mkdirAsync("wd"));
 	} catch (e) { /* whatever lol */ }
 
-	let replayPath = await (fs.realpathAsync(process.argv[2]));
-	let mapPath = await (fs.realpathAsync(process.argv[3]));
+	let replayPath = await(fs.realpathAsync(process.argv[2]));
+	let mapPath = await(fs.realpathAsync(process.argv[3]));
 	let outputFile = process.argv[4];
 	if (!await(fs.statAsync(replayPath))) throw new Error("can't find replay");
 	if (!await(fs.statAsync(mapPath))) throw new Error("can't find map");
@@ -203,14 +203,14 @@ let start = async (function() {
 			break;
 		} catch (e) { }
 	}
-	folderName = await (fs.realpathAsync(folderName));
+	folderName = await(fs.realpathAsync(folderName));
 	console.log("working directory:", folderName);
 
 	await(Skin.loadImages());
 	Skin.options = await(Skin.ParseIni('cookie'));
 
-	let replayData = await (fs.readFileAsync(process.argv[2]));
-	let replay = await (readReplay(replayData));
+	let replayData = await(fs.readFileAsync(process.argv[2]));
+	let replay = await(readReplay(replayData));
 	// console.log(replay);
 
 	let mapFolder = folderName + "/map";
@@ -219,7 +219,7 @@ let start = async (function() {
 	} catch (e) { }
 
 	// extract map
-	await (extract(mapPath, mapFolder));
+	await(extract(mapPath, mapFolder));
 
 	let files = await(fs.readdirAsync(mapFolder));
 	let mapFile = null;
@@ -239,7 +239,7 @@ let start = async (function() {
 	let map = await(Beatmap.ParseFile(mapFile));
 	//let parsedMap = await(osuParser.parseFileAsync(mapFile));
 
-	let getMp3Duration = function() {
+	let getMp3Duration = function () {
 		return new Promise(resolve => {
 			require('mp3-duration')(mapFolder + "/" + map.AudioFilename, (err, response) => resolve(response));
 		});
@@ -273,7 +273,30 @@ let start = async (function() {
 	let mx = 0, my = 0;
 	mouseMovements[0].time = mouseMovements[0].dt;
 	for (let i = 1; i < mouseMovements.length; ++i) {
-		mouseMovements[i].time = mouseMovements[i-1].time + mouseMovements[i].dt;
+		mouseMovements[i].time = mouseMovements[i - 1].time + mouseMovements[i].dt;
+		mouseMovements[i].keys = {
+			M1: ((mouseMovements[i].keyBits & 1) == 1) && ((mouseMovements[i].keyBits & 5) != 5),
+			M2: ((mouseMovements[i].keyBits & 2) == 2) && ((mouseMovements[i].keyBits & 10) != 10),
+			K1: (mouseMovements[i].keyBits & 5) == 5,
+			K2: (mouseMovements[i].keyBits & 10) == 10
+		};
+	}
+
+	let difficultyPoints = map.CircleSize + map.HPDrainRate + map.OverallDifficulty;
+	var difficultyPointMultiplier;
+	if (difficultyPoints < 0) {
+		// something is fucked
+		process.exit(69);
+	} else if (difficultyPoints <= 5) {
+		difficultyPointMultiplier = 2;
+	} else if (difficultyPoints <= 12) {
+		difficultyPointMultiplier = 3;
+	} else if (difficultyPoints <= 17) {
+		difficultyPointMultiplier = 4;
+	} else if (difficultyPoints <= 24) {
+		difficultyPointMultiplier = 5;
+	} else if (difficultyPoints <= 30) {
+		difficultyPointMultiplier = 6;
 	}
 
 	// MODS
@@ -307,7 +330,13 @@ let start = async (function() {
 		for (let i = 0; i < n2.length; i++) {
 			digits.push(Skin.resources['default-' + n2.charAt(i)]);
 		}
-		Skin.addImage(`default-${n}`,Util.concatImages(digits, parseInt(Skin.options.HitCircleOverlap || 2, 10)));
+		Skin.addImage(`default-${n}`, Util.concatImages(digits, parseInt(Skin.options.HitCircleOverlap || 2, 10)));
+	}
+
+	// associate hits
+	for (let i = map.HitObjects.length - 1; i >= 0; --i) {
+		let note = map.HitObjects[i];
+		// TODO lol
 	}
 
 	let gridcanvas2 = new Canvas();
@@ -317,7 +346,7 @@ let start = async (function() {
 	let score = 0;
 	// console.log([map]);
 
-	let END = 1000; //frameCount;
+	let END = 350; //frameCount;
 	for (let i = 0; i < END; ++i) {
 		try {
 			let msec = i * 1000 / 60.0;
@@ -349,6 +378,7 @@ let start = async (function() {
 				ctx.stroke();
 			}
 			ctx.restore();
+			// end grid
 
 			for (let j = map.HitObjects.length - 1; j >= 0; --j) {
 				// if (j > 1) break;
@@ -358,14 +388,29 @@ let start = async (function() {
 			}
 			ctx.drawImage(gridcanvas2, 0, 0);
 
+			// draw score
 			let scoreString = score.toString().pad(8);
 			// console.log(scoreString);
+			ctx.font = "60px Arial";
+			ctx.fillStyle = "#ffffff";
+			ctx.fillText(scoreString, 1900 - ctx.measureText(scoreString).width, 50);
 
 			while (mouseMovements[0].time <= msec) {
 				mx = mouseMovements[0].x;
 				my = mouseMovements[0].y;
 				mouseMovements = mouseMovements.slice(1);
 			}
+
+			// draw key overlay
+			ctx.fillStyle = mouseMovements[0].keys.K1 ? "#ff0" : "#fff";
+			ctx.fillRect(1880, 430, 40, 40);
+			ctx.fillStyle = mouseMovements[0].keys.K2 ? "#ff0" : "#fff";
+			ctx.fillRect(1880, 490, 40, 40);
+			ctx.fillStyle = mouseMovements[0].keys.M1 ? "#f0f" : "#fff";
+			ctx.fillRect(1880, 550, 40, 40);
+			ctx.fillStyle = mouseMovements[0].keys.M2 ? "#f0f" : "#fff";
+			ctx.fillRect(1880, 610, 40, 40);
+
 			for (let i in prevMousePositions) {
 				if (!parseInt(i)) continue;
 				ctx.globalAlpha = (i / prevMousePositions.length);
@@ -381,14 +426,16 @@ let start = async (function() {
 				prevMousePositions = prevMousePositions.slice(prevMousePositions.length - 6);
 			}
 
-			await (writeFrame(canvas, recorder));
-			process.stdout.write("\rProcessing " + (Math.round((i + 1) * 10000.00 / END) / 100.0) + "%.          ");
+			await(writeFrame(canvas, recorder));
+			let s1 = "\rProcessing " + (Math.round((i + 1) * 10000.00 / END) / 100.0) + "%";
+			let s2 = "Score: " + mouseMovements[0].keyBits;
+			process.stdout.write(s1 + Array(40 - s1.length).join(" ") + s2 + Array(40 - s2.length).join(" "));
 		} catch (e) { console.log("Frame " + i + " fucked up."); throw e; }
 	}
 	console.log();
 
 	recorder.stdin.end();
-	recorder.on("close", function() {
+	recorder.on("close", function () {
 		// mix audio
 		var mixer = child_process.spawn("ffmpeg", ["-y", "-i", folderName + "/noaudio.mp4", "-itsoffset", "00:00:" + "00", "-i", mapFolder + "/" + map.AudioFilename, "-vcodec", "copy", "-acodec", "libmp3lame", "-shortest", outputFile]);
 		// mixer.stdout.on("data", function(e) {
@@ -405,7 +452,7 @@ let start = async (function() {
 		// 	};
 		// 	console.error(output);
 		// });
-		mixer.on("close", function() {
+		mixer.on("close", function () {
 			console.log("Done");
 		});
 	});
