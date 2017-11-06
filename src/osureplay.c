@@ -1,5 +1,6 @@
 #include "beatmap.h"
 #include "playfield.h"
+#include "replay.h"
 #include <dirent.h>
 #include <fcntl.h>
 #include <libavcodec/avcodec.h>
@@ -66,6 +67,31 @@ int main(int argc, char **argv) {
     }
     char *mp4filename = argv[3];
     // don't really care if this exists, overwrite if necessary
+
+    // read and parse replay file
+    replay_t *replay = (replay_t *)malloc(sizeof(replay_t));
+    FILE *fp = fopen(osrfilename, "rb");
+    int osrsize, result;
+    char *osrbuf;
+
+    fseek(fp, 0, SEEK_END);
+    osrsize = ftell(fp);
+    rewind(fp);
+
+    osrbuf = (char *)malloc(sizeof(char) * osrsize);
+    if (osrbuf == NULL) {
+        fprintf(stderr,
+                "Could not allocate enough memory for the replay file.\n");
+        exit(1);
+    }
+    result = fread(osrbuf, 1, osrsize, fp);
+    if (result != osrsize) {
+        fprintf(stderr, "Could not read the entire replay file.\n");
+        exit(1);
+    }
+    fclose(fp);
+    parse_replay(replay, osrbuf);
+    free(osrbuf);
 
     // make sure base folder exists
     safemkdir("maps");
@@ -135,6 +161,9 @@ int main(int argc, char **argv) {
                     sum += len;
                 }
                 close(fd);
+                char checksum[MD5_DIGEST_LENGTH * 2];
+                hashfile(checksum, fullname);
+                printf("checksum of '%s' is '%s'\n", fullname, checksum);
                 zip_fclose(zf);
             }
         }
@@ -225,11 +254,12 @@ int main(int argc, char **argv) {
             exit(1);
         }
         if (got_output) {
-            printf("Write frame %3d (size=%5d)\n", i, pkt.size);
+            printf("Write frame %3d (size=%5d)\r", i, pkt.size);
             fwrite(pkt.data, 1, pkt.size, vidfile);
             av_free_packet(&pkt);
         }
     }
+    printf("\033[KDone!\n");
 
     // close everything
     outbuf[0] = 0x00;
@@ -244,6 +274,9 @@ int main(int argc, char **argv) {
     avcodec_close(ctx);
     av_free(ctx);
     av_free(picture);
+
+    free_replay(replay);
+    free(replay);
 
     return 0;
 }
