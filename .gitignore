@@ -7,3 +7,5 @@ build
 
 # dont ask
 .gdb_history
+out.mp4
+peda-session*

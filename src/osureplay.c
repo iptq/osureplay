@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/frame.h>
+#include <libavutil/imgutils.h>
 #include <openssl/md5.h>
 #include <stdio.h>
 #include <string.h>
@@ -155,15 +156,26 @@ int main(int argc, char **argv) {
     int outbuf_size, size, ret, got_output;
     uint8_t *outbuf, *picture_buf;
 
-    codec = avcodec_find_encoder(AV_CODEC_ID_MPEG4);
-    picture = av_frame_alloc();
+    avcodec_register_all();
+    codec = avcodec_find_encoder_by_name("mpeg4");
 
     ctx = avcodec_alloc_context3(codec);
     ctx->bit_rate = 400000;
     ctx->width = p.width;
     ctx->height = p.height;
     ctx->time_base = (AVRational){1, p.fps};
-    ctx->pix_fmt = PIX_FMT_YUV420P9;
+    ctx->gop_size = 0;
+    ctx->max_b_frames = 1;
+    ctx->pix_fmt = PIX_FMT_YUV420P;
+
+    picture = av_frame_alloc();
+    if (!picture) {
+        fprintf(stderr, "Could not allocate the frame.\n");
+        exit(1);
+    }
+    picture->format = ctx->pix_fmt;
+    picture->width = p.width;
+    picture->height = p.height;
 
     if (avcodec_open2(ctx, codec, NULL) < 0) {
         fprintf(stderr, "Could not open codec.\n");
@@ -181,6 +193,13 @@ int main(int argc, char **argv) {
     size = ctx->width * ctx->height;
     picture_buf = malloc((size * 3) / 2);
 
+    ret = av_image_alloc(picture->data, picture->linesize, ctx->width,
+                         ctx->height, ctx->pix_fmt, 32);
+    if (ret < 0) {
+        fprintf(stderr, "Could not allocate raw picture buffer.\n");
+        exit(1);
+    }
+
     // begin encoding
     for (int i = 0; i < 100; ++i) {
         av_init_packet(&pkt);
@@ -188,6 +207,18 @@ int main(int argc, char **argv) {
         pkt.size = 0;
 
         fflush(stdout);
+        // for (int x = 0; x < ctx->width; ++x) {
+        //     for (int y = 0; y < ctx->height; ++y) {
+        //         picture->data[0][y * picture->linesize[0] + x] = x + y + i *
+        //         3;
+        //         picture->data[1][y * picture->linesize[1] + x] =
+        //             128 + y + i * 2;
+        //         picture->data[2][y * picture->linesize[2] + x] = 64 + x + i *
+        //         5;
+        //     }
+        // }
+        picture->pts = i;
+
         ret = avcodec_encode_video2(ctx, &pkt, picture, &got_output);
         if (ret < 0) {
             fprintf(stderr, "Error encoding frame.\n");
