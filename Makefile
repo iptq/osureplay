@@ -1,22 +1,38 @@
-CC=gcc
+SRCDIR = src
+BUILDDIR = buildma
+OBJDIR = $(BUILDDIR)/obj/src
+EXEFILE = osureplay
 
-CAIRO_FLAGS=-lcairo
-FFMPEG_FLAGS=-lavcodec -lavformat -lavutil
-LIBZIP_FLAGS=-lzip
-OPENSSL_FLAGS=-lssl -lcrypto
-LIB_FLAGS=$(CAIRO_FLAGS) $(FFMPEG_FLAGS) $(OPENSSL_FLAGS) $(LIBZIP_FLAGS)
-CFLAGS=-g -Wall -Os -fdce -fdata-sections -ffunction-sections
+SRCFILES = $(wildcard $(SRCDIR)/*.c)
+OBJFILES = $(notdir $(patsubst %.c,%.o,$(SRCFILES)))
 
-.PHONY: clean
+INCLUDEDIRS = -I$(SRCDIR)
+LIBDIRS =
+LIBS = -lavcodec -lavformat -lavutil -lcairo -lcrypto -lssl
 
-all: osureplay.o playfield.o
-	$(CC) $(CFLAGS) -o osureplay $< $(LIB_FLAGS)
+CC = gcc
+CFLAGS = -g -Wall -Os -fdce -fdata-sections -ffunction-sections -std=c11 -c $(INCLUDEDIRS)
+LDFLAGS = $(LIBDIRS)
+LDLIBS = $(LIBS)
 
-osureplay.o: osureplay.c
-	$(CC) $(CFLAGS) -c $<
+.PHONY: clean all $(OBJDIR)
 
-playfield.o: playfield.c
-	$(CC) $(CFLAGS) -c $<
+all: $(EXEFILE)
+
+$(addprefix $(OBJDIR)/, $(OBJFILES)): | $(OBJDIR)
+
+$(OBJDIR) $(BUILDDIR):
+	@mkdir -p $@
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	$(call make-depend,$<,$@,$(subst .o,.d,$@))
+	$(CC) $(CFLAGS) $(LDFLAGS) -c -o $@ $<
+
+make-depend=$(CC) -MM -MF $3 -MP -MT $2 $(CFLAGS) $1
+
+$(EXEFILE): $(addprefix $(OBJDIR)/, $(OBJFILES))
+	$(CC) $(LDFLAGS) $(addprefix $(OBJDIR)/, $(OBJFILES)) -o $@ $(LDLIBS)
 
 clean:
-	rm -rf osureplay *.o
+	rm -rf osureplay build
+	rm -f *.o

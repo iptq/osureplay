@@ -3,3 +3,7 @@ osureplay
 .vscode
 example
 maps
+build
+
+# dont ask
+.gdb_history

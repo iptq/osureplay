@@ -79,21 +79,26 @@ int main(int argc, char **argv) {
     // making the dump directory
 
     // create a playfield object to hold gameplay vars
-    playfield_t p = {60, 0, 1366, 768};
+    playfield_t p = {45, 0, 1366, 768};
 
     // prepare video
     AVCodec *codec;
     AVCodecContext *ctx = NULL;
     AVFrame *picture;
+    AVPacket pkt;
     FILE *vidfile;
+    int outbuf_size, size, ret, got_output;
+    uint8_t *outbuf, *picture_buf;
 
     codec = avcodec_find_encoder(AV_CODEC_ID_MPEG4);
     picture = av_frame_alloc();
 
+    ctx = avcodec_alloc_context3(codec);
     ctx->bit_rate = 400000;
     ctx->width = p.width;
     ctx->height = p.height;
     ctx->time_base = (AVRational){1, p.fps};
+    ctx->pix_fmt = PIX_FMT_YUV420P9;
 
     if (avcodec_open2(ctx, codec, NULL) < 0) {
         fprintf(stderr, "Could not open codec.\n");
@@ -106,10 +111,40 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    outbuf_size = 100000;
+    outbuf = malloc(outbuf_size);
+    size = ctx->width * ctx->height;
+    picture_buf = malloc((size * 3) / 2);
+
     // begin encoding
+    for (int i = 0; i < 100; ++i) {
+        av_init_packet(&pkt);
+        pkt.data = NULL;
+        pkt.size = 0;
+
+        fflush(stdout);
+        ret = avcodec_encode_video2(ctx, &pkt, picture, &got_output);
+        if (ret < 0) {
+            fprintf(stderr, "Error encoding frame.\n");
+            exit(1);
+        }
+        if (got_output) {
+            printf("Write frame %3d (size=%5d)\n", i, pkt.size);
+            fwrite(pkt.data, 1, pkt.size, vidfile);
+            av_free_packet(&pkt);
+        }
+    }
 
     // close everything
+    outbuf[0] = 0x00;
+    outbuf[1] = 0x00;
+    outbuf[2] = 0x01;
+    outbuf[3] = 0xb7;
+    fwrite(outbuf, 1, 4, vidfile);
+
     fclose(vidfile);
+    free(picture_buf);
+    free(outbuf);
     avcodec_close(ctx);
     av_free(ctx);
     av_free(picture);
