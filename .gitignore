@@ -1,0 +1,5 @@
+*.o
+osureplay
+.vscode
+example
+maps
