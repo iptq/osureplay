@@ -1,5 +1,5 @@
 SRCDIR = src
-BUILDDIR = buildma
+BUILDDIR = build
 OBJDIR = $(BUILDDIR)/obj/src
 EXEFILE = osureplay
 
