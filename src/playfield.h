@@ -12,6 +12,6 @@ typedef struct playfield_t {
     beatmap_t beatmap;
 } playfield_t;
 
-void write_frame(AVFrame *frame);
+void write_frame(playfield_t *p, AVFrame *frame);
 
 #endif

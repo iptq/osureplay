@@ -1,23 +1,25 @@
+#include "beatmap.h"
 #include "playfield.h"
 #include <dirent.h>
+#include <fcntl.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/frame.h>
-#include <openssl/sha.h>
+#include <openssl/md5.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <zip.h>
 
 int checkexists(char *filename) { return access(filename, F_OK) != -1; }
 
-void createifnotexists(char *dirname) {
-    DIR *dummy;
-    if ((dummy = opendir(dirname)) == NULL) {
-        mkdir(dirname, 0700);
-    } else {
-        closedir(dummy);
-    }
+static void safemkdir(const char *dir) {
+    mkdir(dir, 0700);
+    // if (mkdir(dir, 0700) < 0 && errno != EEXIST) {
+    //     perror(dir);
+    //     exit(1);
+    // }
 }
 
 // https://stackoverflow.com/a/10324904
@@ -27,18 +29,19 @@ int hashfile(char *h, char *filename) {
         fprintf(stderr, "Could not open file %s.\n", filename);
         return 0;
     }
-    SHA256_CTX ctx;
+    MD5_CTX ctx;
     int bytes;
     unsigned char buf[1024];
-    unsigned char c[SHA256_DIGEST_LENGTH];
-    SHA256_Init(&ctx);
+    unsigned char c[MD5_DIGEST_LENGTH];
+    MD5_Init(&ctx);
     while ((bytes = fread(buf, 1, 1024, fp)) != 0) {
-        SHA256_Update(&ctx, buf, bytes);
+        MD5_Update(&ctx, buf, bytes);
     }
-    SHA256_Final(c, &ctx);
+    MD5_Final(c, &ctx);
     fclose(fp);
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i, h += 2)
-        sprintf(h, "%02x", c[i]);
+    char *p = h;
+    for (int i = 0; i < MD5_DIGEST_LENGTH; ++i, p += 2)
+        sprintf(p, "%02x", c[i]);
     return 1;
 }
 
@@ -55,28 +58,90 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Could not locate *.osr file.\n");
         exit(1);
     }
-    char *oszfilename = argv[1];
+    char *oszfilename = argv[2];
     if (!checkexists(oszfilename)) {
         fprintf(stderr, "Could not locate *.osz file.\n");
         exit(1);
     }
-    char *mp4filename = argv[2];
+    char *mp4filename = argv[3];
     // don't really care if this exists, overwrite if necessary
 
     // make sure base folder exists
-    createifnotexists("maps");
+    safemkdir("maps");
 
     // create map folders
-    char filehash[SHA256_DIGEST_LENGTH * 2];
+    char filehash[MD5_DIGEST_LENGTH * 2];
     if (!hashfile(filehash, oszfilename)) {
         fprintf(stderr, "Could not determine hash of *.osz.\n");
     }
     char mapdir[5 + strlen(filehash)];
-    strcat(mapdir, "maps/");
+    strcpy(mapdir, "maps/");
     strncat(mapdir, filehash, strlen(filehash));
-    createifnotexists(mapdir);
+    safemkdir(mapdir);
 
     // making the dump directory
+    char oszdir[strlen(mapdir) + 6];
+    strncpy(oszdir, mapdir, strlen(mapdir));
+    strcat(oszdir, "/files");
+    safemkdir(oszdir);
+
+    // extract files from osz
+    // https://gist.github.com/mobius/1759816
+    struct zip *za;
+    struct zip_file *zf;
+    struct zip_stat sb;
+    int err, len, fd, sum;
+    char errbuf[100], zipbuf[100], fullname[1024];
+    if ((za = zip_open(oszfilename, 0, &err)) == NULL) {
+        zip_error_to_str(errbuf, sizeof(errbuf), err, errno);
+        fprintf(stderr, "Cannot open zip file '%s': %s\n", oszfilename, errbuf);
+        exit(1);
+    }
+    for (int i = 0, l = zip_get_num_entries(za, ZIP_FL_UNCHANGED); i < l; ++i) {
+        if (zip_stat_index(za, i, 0, &sb) == 0) {
+            len = strlen(sb.name);
+            if (sb.name[len - 1] == '/') {
+                safemkdir(sb.name);
+            } else {
+                zf = zip_fopen_index(za, i, 0);
+                if (!zf) {
+                    fprintf(stderr, "Error opening '%s' from zip archive.\n",
+                            sb.name);
+                    exit(1);
+                }
+                fullname[0] = '\0';
+                strncat(fullname, oszdir, strlen(oszdir));
+                strcat(fullname, "/");
+                strncat(fullname, sb.name, len);
+                fd = open(fullname, O_RDWR | O_TRUNC | O_CREAT, 0644);
+                if (fd < 0) {
+                    fprintf(stderr, "Invalid file descriptor for '%s'\n",
+                            sb.name);
+                    exit(1);
+                }
+                sum = 0;
+                while (sum != sb.size) {
+                    len = zip_fread(zf, zipbuf, 100);
+                    if (len < 0) {
+                        fprintf(stderr, "the fuck?\n");
+                        exit(1);
+                    }
+                    ssize_t b = write(fd, zipbuf, len);
+                    if (b < 0) {
+                        fprintf(stderr, "the fuck?\n");
+                        exit(1);
+                    }
+                    sum += len;
+                }
+                close(fd);
+                zip_fclose(zf);
+            }
+        }
+    }
+    if (zip_close(za) == -1) {
+        fprintf(stderr, "Can't close the osz.\n");
+        exit(1);
+    }
 
     // create a playfield object to hold gameplay vars
     playfield_t p = {45, 0, 1366, 768};
