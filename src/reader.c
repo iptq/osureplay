@@ -48,3 +48,20 @@ char *reader_read_string(reader_t *r, int length) {
     r->pos += clength;
     return x;
 }
+
+char *reader_read_line(reader_t *r) {
+    if (r->pos >= r->len)
+        return NULL;
+    int end = r->pos;
+    while (end < r->len && r->blob[end] != '\n') {
+        ++end;
+    }
+    int length = end - r->pos;
+    if (r->blob[end - 1] == '\x0d') // thanks windows
+        length -= 1;
+    char *result = (char *)malloc(sizeof(char) * (length + 1));
+    strncpy(result, &r->blob[r->pos], length);
+    result[length] = '\0';
+    r->pos = end + 1;
+    return result;
+}

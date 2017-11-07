@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 void parse_replay(replay_t *r, char *contents) {
-    reader_t reader = {contents, 0};
+    reader_t reader = {contents, 0, strlen(contents)};
     int length;
 
     r->game_mode = reader_read_byte(&reader);

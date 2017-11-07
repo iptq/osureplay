@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     osrsize = ftell(fp);
     rewind(fp);
 
-    osrbuf = (char *)malloc(sizeof(char) * osrsize);
+    osrbuf = (char *)malloc(sizeof(char) * (osrsize + 1));
     if (osrbuf == NULL) {
         fprintf(stderr,
                 "Could not allocate enough memory for the replay file.\n");
@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
     fclose(fp);
+    osrbuf[osrsize] = '\0';
     parse_replay(replay, osrbuf);
     free(osrbuf);
 
@@ -118,12 +119,15 @@ int main(int argc, char **argv) {
     struct zip_file *zf;
     struct zip_stat sb;
     int err, len, fd, sum;
+    // TODO: beatmap names larger than 1024
     char errbuf[100], zipbuf[100], fullname[1024];
     if ((za = zip_open(oszfilename, 0, &err)) == NULL) {
         zip_error_to_str(errbuf, sizeof(errbuf), err, errno);
         fprintf(stderr, "Cannot open zip file '%s': %s\n", oszfilename, errbuf);
         exit(1);
     }
+    bool found = false;
+    char beatmapfilename[1024];
     for (int i = 0, l = zip_get_num_entries(za, ZIP_FL_UNCHANGED); i < l; ++i) {
         if (zip_stat_index(za, i, 0, &sb) == 0) {
             len = strlen(sb.name);
@@ -163,8 +167,13 @@ int main(int argc, char **argv) {
                 close(fd);
                 char checksum[MD5_DIGEST_LENGTH * 2];
                 hashfile(checksum, fullname);
-                printf("checksum of '%s' is '%s'\n", fullname, checksum);
                 zip_fclose(zf);
+
+                // read file again if it matches
+                if (!strcmp(checksum, replay->beatmap_hash)) {
+                    strcpy(beatmapfilename, fullname);
+                    found = true;
+                }
             }
         }
     }
@@ -172,6 +181,36 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Can't close the osz.\n");
         exit(1);
     }
+    if (!found) {
+        fprintf(stderr, "None of the maps in this set match the replay.\n");
+        exit(1);
+    }
+
+    // read and parse the beatmap file
+    beatmap_t *beatmap = (beatmap_t *)malloc(sizeof(beatmap_t));
+    fp = fopen(beatmapfilename, "rb");
+    int mapsize;
+    char *mapbuf;
+
+    fseek(fp, 0, SEEK_END);
+    mapsize = ftell(fp);
+    rewind(fp);
+
+    mapbuf = (char *)malloc(sizeof(char) * mapsize);
+    if (mapbuf == NULL) {
+        fprintf(stderr,
+                "Could not allocate enough memory for the replay file.\n");
+        exit(1);
+    }
+    result = fread(mapbuf, 1, mapsize, fp);
+    if (result != mapsize) {
+        fprintf(stderr, "Could not read the entire replay file.\n");
+        exit(1);
+    }
+    fclose(fp);
+    mapbuf[mapsize] = '\0';
+    parse_beatmap(beatmap, mapbuf);
+    free(mapbuf);
 
     // create a playfield object to hold gameplay vars
     playfield_t p = {45, 0, 1366, 768};
@@ -233,7 +272,7 @@ int main(int argc, char **argv) {
 
     // begin encoding
     int width = ctx->width, height = ctx->height;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 10; ++i) {
         av_init_packet(&pkt);
         pkt.data = NULL;
         pkt.size = 0;

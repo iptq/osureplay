@@ -1,10 +1,8 @@
 #ifndef common_h_
 #define common_h_
 
-#define true 1
-#define false 0
+#include <stdbool.h>
 
-typedef char bool;
 typedef unsigned char byte;
 typedef long int int32;
 typedef unsigned long int uint32;
