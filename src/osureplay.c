@@ -228,24 +228,24 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Could not allocate raw picture buffer.\n");
         exit(1);
     }
+    avcodec_align_dimensions2(ctx, &ctx->width, &ctx->height,
+                              &picture->linesize[0]);
 
     // begin encoding
-    for (int i = 0; i < 100; ++i) {
+    int width = ctx->width, height = ctx->height;
+    for (int i = 0; i < 1000; ++i) {
         av_init_packet(&pkt);
         pkt.data = NULL;
         pkt.size = 0;
 
         fflush(stdout);
-        // for (int x = 0; x < ctx->width; ++x) {
-        //     for (int y = 0; y < ctx->height; ++y) {
-        //         picture->data[0][y * picture->linesize[0] + x] = x + y + i *
-        //         3;
-        //         picture->data[1][y * picture->linesize[1] + x] =
-        //             128 + y + i * 2;
-        //         picture->data[2][y * picture->linesize[2] + x] = 64 + x + i *
-        //         5;
-        //     }
-        // }
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                picture->data[0][y * width + x] = 40;
+                // picture->data[1][y * width + x] = 40;
+                // picture->data[2][y * width + x] = 40;
+            }
+        }
         picture->pts = i;
 
         ret = avcodec_encode_video2(ctx, &pkt, picture, &got_output);
