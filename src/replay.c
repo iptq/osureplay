@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void parse_replay(replay_t *r, char *contents) {
     reader_t reader = {contents, 0, strlen(contents)};
@@ -50,4 +51,5 @@ void free_replay(replay_t *r) {
     free(r->replay_hash);
     if (r->has_lifebar)
         free(r->lifebar);
+    free(r);
 }

@@ -2,6 +2,7 @@
 #include "playfield.h"
 #include "replay.h"
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/frame.h>
@@ -17,11 +18,13 @@
 int checkexists(char *filename) { return access(filename, F_OK) != -1; }
 
 static void safemkdir(const char *dir) {
-    mkdir(dir, 0700);
-    // if (mkdir(dir, 0700) < 0 && errno != EEXIST) {
-    //     perror(dir);
-    //     exit(1);
-    // }
+    if (mkdir(dir, 0700)) {
+        if (errno != EEXIST) {
+            fprintf(stderr, "Error creating directory '%s' (err: %s)\n", dir,
+                    strerror(errno));
+            exit(1);
+        }
+    }
 }
 
 // https://stackoverflow.com/a/10324904
@@ -48,11 +51,20 @@ int hashfile(char *h, char *filename) {
 }
 
 int main(int argc, char **argv) {
+    beatmap_t *beatmap;
+    playfield_t *playfield;
+    replay_t *replay;
+
     // TODO: an actual argument parser
     if (argc < 4) {
         printf("Usage: %s [.osr] [.osz] [.mp4]\n", argv[0]);
         exit(1);
     }
+
+    playfield = (playfield_t *)malloc(sizeof(playfield_t));
+    playfield->width = 1366;
+    playfield->height = 768;
+    playfield->fps = 30;
 
     // check to make sure the files exist
     char *osrfilename = argv[1];
@@ -69,7 +81,7 @@ int main(int argc, char **argv) {
     // don't really care if this exists, overwrite if necessary
 
     // read and parse replay file
-    replay_t *replay = (replay_t *)malloc(sizeof(replay_t));
+    replay = (replay_t *)malloc(sizeof(replay_t));
     FILE *fp = fopen(osrfilename, "rb");
     int osrsize, result;
     char *osrbuf;
@@ -93,6 +105,7 @@ int main(int argc, char **argv) {
     osrbuf[osrsize] = '\0';
     parse_replay(replay, osrbuf);
     free(osrbuf);
+    playfield->replay = replay;
 
     // make sure base folder exists
     safemkdir("maps");
@@ -146,8 +159,9 @@ int main(int argc, char **argv) {
                 strncat(fullname, sb.name, len);
                 fd = open(fullname, O_RDWR | O_TRUNC | O_CREAT, 0644);
                 if (fd < 0) {
-                    fprintf(stderr, "Invalid file descriptor for '%s'\n",
-                            sb.name);
+                    fprintf(stderr,
+                            "Invalid file descriptor for '%s' (err: %s)\n",
+                            sb.name, strerror(errno));
                     exit(1);
                 }
                 sum = 0;
@@ -187,7 +201,7 @@ int main(int argc, char **argv) {
     }
 
     // read and parse the beatmap file
-    beatmap_t *beatmap = (beatmap_t *)malloc(sizeof(beatmap_t));
+    beatmap = (beatmap_t *)malloc(sizeof(beatmap_t));
     fp = fopen(beatmapfilename, "rb");
     int mapsize;
     char *mapbuf;
@@ -211,9 +225,7 @@ int main(int argc, char **argv) {
     mapbuf[mapsize] = '\0';
     parse_beatmap(beatmap, mapbuf);
     free(mapbuf);
-
-    // create a playfield object to hold gameplay vars
-    playfield_t p = {45, 0, 1366, 768};
+    playfield->beatmap = beatmap;
 
     // prepare video
     AVCodec *codec;
@@ -224,14 +236,16 @@ int main(int argc, char **argv) {
     int outbuf_size, size, ret, got_output;
     uint8_t *outbuf, *picture_buf;
 
+    playfield->tick = 0;
+
     avcodec_register_all();
     codec = avcodec_find_encoder_by_name("mpeg4");
 
     ctx = avcodec_alloc_context3(codec);
     ctx->bit_rate = 400000;
-    ctx->width = p.width;
-    ctx->height = p.height;
-    ctx->time_base = (AVRational){1, p.fps};
+    ctx->width = playfield->width;
+    ctx->height = playfield->height;
+    ctx->time_base = (AVRational){1, playfield->fps};
     ctx->gop_size = 0;
     ctx->max_b_frames = 1;
     ctx->pix_fmt = PIX_FMT_YUV420P;
@@ -242,8 +256,8 @@ int main(int argc, char **argv) {
         exit(1);
     }
     picture->format = ctx->pix_fmt;
-    picture->width = p.width;
-    picture->height = p.height;
+    picture->width = playfield->width;
+    picture->height = playfield->height;
 
     if (avcodec_open2(ctx, codec, NULL) < 0) {
         fprintf(stderr, "Could not open codec.\n");
@@ -314,8 +328,7 @@ int main(int argc, char **argv) {
     av_free(ctx);
     av_free(picture);
 
-    free_replay(replay);
-    free(replay);
+    free_playfield(playfield);
 
     return 0;
 }
