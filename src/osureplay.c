@@ -122,8 +122,7 @@ int main(int argc, char **argv) {
 
     // making the dump directory
     char oszdir[strlen(mapdir) + 6];
-    strncpy(oszdir, mapdir, strlen(mapdir));
-    strcat(oszdir, "/files");
+    sprintf(oszdir, "%s/files", mapdir);
     safemkdir(oszdir);
 
     // extract files from osz
@@ -154,9 +153,7 @@ int main(int argc, char **argv) {
                     exit(1);
                 }
                 fullname[0] = '\0';
-                strncat(fullname, oszdir, strlen(oszdir));
-                strcat(fullname, "/");
-                strncat(fullname, sb.name, len);
+                sprintf(fullname, "%s/%s", oszdir, sb.name);
                 fd = open(fullname, O_RDWR | O_TRUNC | O_CREAT, 0644);
                 if (fd < 0) {
                     fprintf(stderr,
