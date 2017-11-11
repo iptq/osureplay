@@ -31,7 +31,6 @@ void parse_timing_point(timing_point_t *t, char *line) {
 }
 
 void init_timing_point_list(timing_point_list_t *ts) {
-    ts = (timing_point_list_t *)malloc(sizeof(timing_point_list_t));
     ts->size = 0;
     ts->capacity = 40;
     ts->list =

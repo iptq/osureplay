@@ -10,6 +10,8 @@ void parse_beatmap(beatmap_t *b, char *contents) {
     char *line;
     char *section = NULL;
 
+    b->timing_points =
+        (timing_point_list_t *)malloc(sizeof(timing_point_list_t));
     init_timing_point_list(b->timing_points);
 
     while ((line = reader_read_line(&reader)) != NULL) {
