@@ -1,7 +1,7 @@
 osu! Replay Recorder
 ====================
 
-Pass in a .osr replay, .osz map, and a filename for the .mp4 video, and ideally it'd crank out a video. Still heavily under development, so nothing works. Don't @ me.
+Pass in a .osr replay, .osz map, and a filename for the .mpg video, and ideally it'd crank out a video. Still heavily under development, so nothing works. Don't @ me.
 
 What is osu?
 ------------

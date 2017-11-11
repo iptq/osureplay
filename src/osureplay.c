@@ -217,7 +217,7 @@ int main(int argc, char **argv) {
 
     playfield->tick = 0;
 
-    codec = avcodec_find_encoder_by_name("mpeg4");
+    codec = avcodec_find_encoder(AV_CODEC_ID_MPEG1VIDEO);
     ctx = avcodec_alloc_context3(codec);
     ctx->bit_rate = 400000;
     ctx->width = playfield->width;
@@ -262,7 +262,7 @@ int main(int argc, char **argv) {
                               &picture->linesize[0]);
 
     // begin encoding
-    int width = ctx->width, height = ctx->height;
+    int width = ctx->width, height = ctx->height, x, y;
 
     // DEBUG
     if (nframes > 500)
@@ -273,11 +273,19 @@ int main(int argc, char **argv) {
         pkt.size = 0;
 
         fflush(stdout);
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-                picture->data[0][y * width + x] = 40;
-                // picture->data[1][y * width + x] = 40;
-                // picture->data[2][y * width + x] = 40;
+        /* prepare a dummy image */
+        /* Y */
+        for (y = 0; y < height; y++) {
+            for (x = 0; x < width; x++) {
+                picture->data[0][y * picture->linesize[0] + x] = 0;
+            }
+        }
+
+        /* Cb and Cr */
+        for (y = 0; y < height / 2; y++) {
+            for (x = 0; x < width / 2; x++) {
+                picture->data[1][y * picture->linesize[1] + x] = 0;
+                picture->data[2][y * picture->linesize[2] + x] = 0;
             }
         }
         picture->pts = i;
@@ -301,8 +309,8 @@ int main(int argc, char **argv) {
     outbuf[2] = 0x01;
     outbuf[3] = 0xb7;
     fwrite(outbuf, 1, 4, vidfile);
-
     fclose(vidfile);
+
     free(picture_buf);
     free(outbuf);
     avcodec_close(ctx);
