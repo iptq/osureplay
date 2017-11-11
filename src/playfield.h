@@ -3,6 +3,7 @@
 
 #include "beatmap.h"
 #include "replay.h"
+#include <cairo.h>
 #include <libavcodec/avcodec.h>
 
 typedef struct playfield_t {
@@ -12,6 +13,9 @@ typedef struct playfield_t {
     int height;
     beatmap_t *beatmap;
     replay_t *replay;
+
+    cairo_surface_t *surface;
+    cairo_t *cr;
 } playfield_t;
 
 void write_frame(playfield_t *p, AVFrame *frame);

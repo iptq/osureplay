@@ -17,7 +17,7 @@
 #include <zip.h>
 
 int checkexists(char *filename);
-int getmp3length(char *filename);
+uint getmp3length(char *filename);
 void safemkdir(const char *dir);
 int hashfile(char *h, char *filename);
 
@@ -39,6 +39,9 @@ int main(int argc, char **argv) {
     playfield->width = 1366;
     playfield->height = 768;
     playfield->fps = 30;
+    playfield->surface = cairo_image_surface_create(
+        CAIRO_FORMAT_ARGB32, playfield->width, playfield->height);
+    playfield->cr = cairo_create(playfield->surface);
 
     // check to make sure the files exist
     char *osrfilename = argv[1];
@@ -200,7 +203,8 @@ int main(int argc, char **argv) {
 
     char mp3filename[1024];
     sprintf(mp3filename, "%s/%s", oszdir, beatmap->audiofilename);
-    printf("mp3 length: ('%s' = %d)\n", mp3filename, getmp3length(mp3filename));
+    uint mp3length_usec = getmp3length(mp3filename);
+    uint nframes = playfield->fps * mp3length_usec / 1000000;
 
     // prepare video
     AVCodec *codec;
@@ -259,7 +263,11 @@ int main(int argc, char **argv) {
 
     // begin encoding
     int width = ctx->width, height = ctx->height;
-    for (int i = 0; i < 10; ++i) {
+
+    // DEBUG
+    if (nframes > 500)
+        nframes = 500;
+    for (int i = 0; i < nframes; ++i) {
         av_init_packet(&pkt);
         pkt.data = NULL;
         pkt.size = 0;
@@ -309,7 +317,7 @@ int main(int argc, char **argv) {
 int checkexists(char *filename) { return access(filename, F_OK) != -1; }
 
 // https://stackoverflow.com/a/6452150
-int getmp3length(char *filename) {
+uint getmp3length(char *filename) {
     AVFormatContext *fctx = avformat_alloc_context();
     avformat_open_input(&fctx, filename, NULL, NULL);
     avformat_find_stream_info(fctx, NULL);
