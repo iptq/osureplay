@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#define MAXCOMBOCOLORS 8
+
 typedef unsigned char byte;
 typedef unsigned int uint;
 typedef long int int32;

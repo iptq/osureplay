@@ -3,12 +3,14 @@
 void parse_timing_point(timing_point_t *t, char *line) {
     char *token;
     double second;
-    for (int i = 0; i < 8; ++i) {
-        token = strtok(line, ",");
-        if (token == NULL) {
-            fprintf(stderr, "Error when parsing timing point: '%s'\n", line);
-            exit(1);
-        }
+    int tmp, i = 0;
+
+    token = strtok(line, ",");
+    while (token != NULL) {
+        // if (token == NULL) {
+        //     fprintf(stderr, "Error when parsing timing point: '%s'\n", line);
+        //     exit(1);
+        // }
         switch (i) {
         case 0:
             sscanf(token, "%d", &t->offset);
@@ -16,17 +18,35 @@ void parse_timing_point(timing_point_t *t, char *line) {
         case 1:
             sscanf(token, "%lf", &second);
             if (second >= 0) {
-                // it's bpm!
-                t->inherited = true;
-                t->bpm = second / 1000 * 60;
-            } else {
-                t->inherited = false;
+                t->bpm = 1000.0 * 60 / second;
             }
             break;
+        case 2:
+            sscanf(token, "%d", &t->meter);
+            break;
+        case 3:
+            sscanf(token, "%d", &t->sampletype);
+            break;
+        case 4:
+            sscanf(token, "%d", &t->sampleset);
+            break;
+        case 5:
+            sscanf(token, "%d", &t->volume);
+            break;
+        case 6:
+            sscanf(token, "%d", &tmp);
+            t->uninherited = tmp;
+            break;
+        case 7:
+            sscanf(token, "%d", &tmp);
+            t->kiai = tmp;
+            break;
         default:
-            fprintf(stderr, "really strange error..\n");
+            fprintf(stderr, "Too many tokens in timing point (i=%d)..\n", i);
             exit(1);
         }
+        token = strtok(NULL, ",");
+        ++i;
     }
 }
 
@@ -38,7 +58,7 @@ void init_timing_point_list(timing_point_list_t *ts) {
 }
 
 void add_timing_point(timing_point_list_t *ts, timing_point_t *t) {
-    ts->list[ts->size] = t;
+    ts->list[ts->size++] = t;
     if (ts->size == ts->capacity) {
         ts->capacity *= 2;
         ts->list = (timing_point_t **)realloc(

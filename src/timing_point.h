@@ -8,10 +8,11 @@
 
 typedef struct timing_point_t {
     int offset;
-    bool inherited;
+    bool uninherited;
     double bpm;
     int meter;
-    int sample_type;
+    int sampletype;
+    int sampleset;
     int volume;
     bool kiai;
 } timing_point_t;

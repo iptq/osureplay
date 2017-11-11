@@ -16,7 +16,6 @@ typedef struct beatmap_t {
     bool widescreenstoryboard;
 
     // Editor
-    int *bookmarks;
     double distancespacing;
     byte beatdivisor;
     byte gridsize;
@@ -41,6 +40,10 @@ typedef struct beatmap_t {
     double approachrate;
     double slidermultiplier;
     double slidertickrate;
+
+    // Colours
+    int ncombocolors;
+    uint *combocolors;
 
     timing_point_list_t *timing_points;
 } beatmap_t;

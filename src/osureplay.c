@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 
     // TODO: an actual argument parser
     if (argc < 4) {
-        printf("Usage: %s [.osr] [.osz] [.mp4]\n", argv[0]);
+        fprintf(stderr, "Usage: %s [.osr] [.osz] [.mp4]\n", argv[0]);
         exit(1);
     }
 
