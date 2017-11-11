@@ -15,40 +15,9 @@
 #include <unistd.h>
 #include <zip.h>
 
-int checkexists(char *filename) { return access(filename, F_OK) != -1; }
-
-static void safemkdir(const char *dir) {
-    if (mkdir(dir, 0700)) {
-        if (errno != EEXIST) {
-            fprintf(stderr, "Error creating directory '%s' (err: %s)\n", dir,
-                    strerror(errno));
-            exit(1);
-        }
-    }
-}
-
-// https://stackoverflow.com/a/10324904
-int hashfile(char *h, char *filename) {
-    FILE *fp = fopen(filename, "rb");
-    if (fp == NULL) {
-        fprintf(stderr, "Could not open file %s.\n", filename);
-        return 0;
-    }
-    MD5_CTX ctx;
-    int bytes;
-    unsigned char buf[1024];
-    unsigned char c[MD5_DIGEST_LENGTH];
-    MD5_Init(&ctx);
-    while ((bytes = fread(buf, 1, 1024, fp)) != 0) {
-        MD5_Update(&ctx, buf, bytes);
-    }
-    MD5_Final(c, &ctx);
-    fclose(fp);
-    char *p = h;
-    for (int i = 0; i < MD5_DIGEST_LENGTH; ++i, p += 2)
-        sprintf(p, "%02x", c[i]);
-    return 1;
-}
+int checkexists(char *filename);
+void safemkdir(const char *dir);
+int hashfile(char *h, char *filename);
 
 int main(int argc, char **argv) {
     beatmap_t *beatmap;
@@ -328,4 +297,39 @@ int main(int argc, char **argv) {
     free_playfield(playfield);
 
     return 0;
+}
+
+int checkexists(char *filename) { return access(filename, F_OK) != -1; }
+
+void safemkdir(const char *dir) {
+    if (mkdir(dir, 0700)) {
+        if (errno != EEXIST) {
+            fprintf(stderr, "Error creating directory '%s' (err: %s)\n", dir,
+                    strerror(errno));
+            exit(1);
+        }
+    }
+}
+
+// https://stackoverflow.com/a/10324904
+int hashfile(char *h, char *filename) {
+    FILE *fp = fopen(filename, "rb");
+    if (fp == NULL) {
+        fprintf(stderr, "Could not open file %s.\n", filename);
+        return 0;
+    }
+    MD5_CTX ctx;
+    int bytes;
+    unsigned char buf[1024];
+    unsigned char c[MD5_DIGEST_LENGTH];
+    MD5_Init(&ctx);
+    while ((bytes = fread(buf, 1, 1024, fp)) != 0) {
+        MD5_Update(&ctx, buf, bytes);
+    }
+    MD5_Final(c, &ctx);
+    fclose(fp);
+    char *p = h;
+    for (int i = 0; i < MD5_DIGEST_LENGTH; ++i, p += 2)
+        sprintf(p, "%02x", c[i]);
+    return 1;
 }
