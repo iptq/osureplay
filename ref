@@ -5,4 +5,7 @@ how to use ffmpeg video encoding
 https://cairographics.org/tutorial/
 cairo reference
 
+https://www.cairographics.org/threaded_animation_with_cairo/
+ideally don't redraw entire screen
+
 https://en.wikipedia.org/wiki/YUV#Conversion_to.2Ffrom_RGB
