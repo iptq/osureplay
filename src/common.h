@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 typedef unsigned char byte;
+typedef unsigned int uint;
 typedef long int int32;
 typedef unsigned long int uint32;
 typedef long long int int64;
