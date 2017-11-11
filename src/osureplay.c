@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
 #include <libavutil/frame.h>
 #include <libavutil/imgutils.h>
 #include <openssl/md5.h>
@@ -16,6 +17,7 @@
 #include <zip.h>
 
 int checkexists(char *filename);
+int getmp3length(char *filename);
 void safemkdir(const char *dir);
 int hashfile(char *h, char *filename);
 
@@ -23,6 +25,9 @@ int main(int argc, char **argv) {
     beatmap_t *beatmap;
     playfield_t *playfield;
     replay_t *replay;
+
+    av_register_all();
+    avcodec_register_all();
 
     // TODO: an actual argument parser
     if (argc < 4) {
@@ -193,6 +198,10 @@ int main(int argc, char **argv) {
     free(mapbuf);
     playfield->beatmap = beatmap;
 
+    char mp3filename[1024];
+    sprintf(mp3filename, "%s/%s", oszdir, beatmap->audiofilename);
+    printf("mp3 length: ('%s' = %d)\n", mp3filename, getmp3length(mp3filename));
+
     // prepare video
     AVCodec *codec;
     AVCodecContext *ctx = NULL;
@@ -204,9 +213,7 @@ int main(int argc, char **argv) {
 
     playfield->tick = 0;
 
-    avcodec_register_all();
     codec = avcodec_find_encoder_by_name("mpeg4");
-
     ctx = avcodec_alloc_context3(codec);
     ctx->bit_rate = 400000;
     ctx->width = playfield->width;
@@ -300,6 +307,17 @@ int main(int argc, char **argv) {
 }
 
 int checkexists(char *filename) { return access(filename, F_OK) != -1; }
+
+// https://stackoverflow.com/a/6452150
+int getmp3length(char *filename) {
+    AVFormatContext *fctx = avformat_alloc_context();
+    avformat_open_input(&fctx, filename, NULL, NULL);
+    avformat_find_stream_info(fctx, NULL);
+    int duration = fctx->duration;
+    avformat_close_input(&fctx);
+    avformat_free_context(fctx);
+    return duration;
+}
 
 void safemkdir(const char *dir) {
     if (mkdir(dir, 0700)) {
