@@ -2,6 +2,7 @@
 #define replay_h_
 
 #include "common.h"
+#include <stdint.h>
 
 typedef struct replay {
     GameMode game_mode;
@@ -9,14 +10,14 @@ typedef struct replay {
     char *beatmap_hash;
     char *username;
     char *replay_hash;
-    short hit300;
-    short hit100;
-    short hit50;
-    short gekis;
-    short katus;
-    short misses;
+    int16_t hit300;
+    int16_t hit100;
+    int16_t hit50;
+    int16_t gekis;
+    int16_t katus;
+    int16_t misses;
     int score;
-    short maxCombo;
+    int16_t maxCombo;
     bool fc;
     int mods;
     bool has_lifebar;

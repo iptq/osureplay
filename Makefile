@@ -6,7 +6,7 @@ EXEFILE = osureplay
 SRCFILES = $(wildcard $(SRCDIR)/*.c)
 OBJFILES = $(notdir $(patsubst %.c,%.o,$(SRCFILES)))
 
-INCLUDEDIRS = -I$(SRCDIR) -I/usr/local/lib/libzip/include -I/usr/include/cairo
+INCLUDEDIRS = -Iinclude -I/usr/local/lib/libzip/include -I/usr/include/cairo
 LIBDIRS = 
 LIBS = -lavcodec -lavformat -lavutil -lcairo -lcrypto -lssl -lzip
 
@@ -15,9 +15,13 @@ CFLAGS = -g -Werror -Wall -Og -fdce -fdata-sections -ffunction-sections -std=c11
 LDFLAGS = $(LIBDIRS)
 LDLIBS = $(LIBS)
 
-.PHONY: clean all $(OBJDIR)
+.PHONY: clean all lint $(OBJDIR)
 
 all: $(EXEFILE)
+
+lint:
+	# you need cpplint installed
+	cpplint --repository=. src/*.c src/*.h
 
 $(addprefix $(OBJDIR)/, $(OBJFILES)): | $(OBJDIR)
 

@@ -7,5 +7,5 @@ build
 
 # dont ask
 .gdb_history
-out.mpg
+out.mp*
 peda-session*
