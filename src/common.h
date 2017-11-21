@@ -12,11 +12,11 @@ typedef unsigned long int uint32;
 typedef long long int int64;
 typedef unsigned long long int uint64;
 
-typedef enum EGameMode {
+typedef enum GameMode {
     STANDARD = 0,
     TAIKO = 1,
     CATCH = 2,
     MANIA = 3
-} EGameMode;
+} GameMode;
 
 #endif

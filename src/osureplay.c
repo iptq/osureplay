@@ -304,14 +304,15 @@ int main(int argc, char **argv) {
     }
     printf("\033[KDone!\n");
 
-    // close everything
+    // end the mpg file
     outbuf[0] = 0x00;
     outbuf[1] = 0x00;
     outbuf[2] = 0x01;
     outbuf[3] = 0xb7;
     fwrite(outbuf, 1, 4, vidfile);
-    fclose(vidfile);
 
+    // close everything
+    fclose(vidfile);
     free(picture_buf);
     free(outbuf);
     avcodec_close(ctx);

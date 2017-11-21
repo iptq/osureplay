@@ -3,7 +3,7 @@
 
 #include "timing_point.h"
 
-typedef struct beatmap_t {
+typedef struct beatmap {
     // General
     char *audiofilename;
     uint audioleadin;
@@ -11,7 +11,7 @@ typedef struct beatmap_t {
     bool countdown;
     char *sampleset;
     double stackleniency;
-    EGameMode mode;
+    GameMode mode;
     bool letterboxinbreaks;
     bool widescreenstoryboard;
 

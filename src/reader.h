@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-typedef struct reader_t {
+typedef struct reader {
     char *blob;
     int pos;
     int len;

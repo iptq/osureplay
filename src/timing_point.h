@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct timing_point_t {
+typedef struct timing_point {
     int offset;
     bool uninherited;
     double bpm;
@@ -17,7 +17,7 @@ typedef struct timing_point_t {
     bool kiai;
 } timing_point_t;
 
-typedef struct timing_point_list_t {
+typedef struct timing_point_list {
     int size;
     int capacity;
     timing_point_t **list;

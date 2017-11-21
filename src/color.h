@@ -4,14 +4,14 @@
 // all the magic is defined here:
 // https://en.wikipedia.org/wiki/YUV#Conversion_to.2Ffrom_RGB
 
-typedef struct rgb_t {
+typedef struct rgb {
     double a;
     double r;
     double g;
     double b;
 } rgb_t;
 
-typedef struct yuv_t {
+typedef struct yuv {
     double y;
     double u;
     double v;

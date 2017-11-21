@@ -3,8 +3,8 @@
 
 #include "common.h"
 
-typedef struct replay_t {
-    EGameMode game_mode;
+typedef struct replay {
+    GameMode game_mode;
     int game_version;
     char *beatmap_hash;
     char *username;

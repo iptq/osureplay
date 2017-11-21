@@ -6,7 +6,7 @@
 #include <cairo.h>
 #include <libavcodec/avcodec.h>
 
-typedef struct playfield_t {
+typedef struct playfield {
     int fps;
     int tick;
     int width;
