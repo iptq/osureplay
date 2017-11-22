@@ -8,7 +8,7 @@ OBJFILES = $(notdir $(patsubst %.c,%.o,$(SRCFILES)))
 
 INCLUDEDIRS = -I../include -I/usr/local/lib/libzip/include
 LIBDIRS = 
-LIBS = -lavcodec -lavformat -lavutil -lcrypto -lssl -lzip
+LIBS = -lavcodec -lavformat -lavutil -lcrypto -lssl -lzip -lglut
 
 CC = gcc
 CFLAGS = -g -Werror -Wall -Og -fdce -fdata-sections -ffunction-sections -std=c11 -Wno-error=maybe-uninitialized -c $(INCLUDEDIRS)
