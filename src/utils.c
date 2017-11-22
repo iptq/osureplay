@@ -89,6 +89,8 @@ char *extractandfind(char *srcfile, char *destdir, char *maphash) {
 
 // https://stackoverflow.com/a/6452150
 uint getmp3length(char *filename) {
+    av_register_all();
+    
     AVFormatContext *fctx = avformat_alloc_context();
     avformat_open_input(&fctx, filename, NULL, NULL);
     avformat_find_stream_info(fctx, NULL);

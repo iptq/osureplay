@@ -10,8 +10,10 @@ typedef struct playfield {
     int tick;
     int width;
     int height;
+
     beatmap_t *beatmap;
     replay_t *replay;
+    uint mp3_length; // in microseconds
 } playfield_t;
 
 void init_playfield(playfield_t *p);
