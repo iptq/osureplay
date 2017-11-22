@@ -1,10 +1,9 @@
 #include "beatmap.h"
+#include "player.h"
 #include "playfield.h"
 #include "renderer.h"
 #include "replay.h"
 #include "utils.h"
-#include <GL/freeglut.h>
-#include <GL/gl.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -135,14 +134,7 @@ int main(int argc, char **argv) {
 
 #ifdef GUI_PLAYER
     UNUSED(mp4filename);
-
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE);
-    glutInitWindowSize(500, 500);
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("OpenGL - Creating a triangle");
-    // glutDisplayFunc(drawTriangle);
-    glutMainLoop();
+    player_main(playfield, argc, argv);
 #else
     renderer_main(playfield, mp4filename);
 #endif
