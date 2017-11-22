@@ -58,7 +58,7 @@ char *reader_read_line(reader_t *r) {
         ++end;
     }
     int length = end - r->pos;
-    if (r->blob[end - 1] == '\x0d') // thanks windows
+    if (r->blob[end - 1] == '\x0d')  // thanks windows
         length -= 1;
     char *result = (char *)malloc(sizeof(char) * (length + 1));
     strncpy(result, &r->blob[r->pos], length);

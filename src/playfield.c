@@ -2,9 +2,11 @@
 #include "beatmap.h"
 #include "replay.h"
 
-void init_playfield(playfield_t *p) {
-    // draw anime girls
+void playfield_load_assets(playfield_t *p) {
+    // load audio file
 }
+
+void render_playfield() {}
 
 void free_playfield(playfield_t *p) {
     free_beatmap(p->beatmap);
