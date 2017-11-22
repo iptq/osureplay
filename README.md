@@ -1,6 +1,8 @@
 osu! Replay Recorder
 ====================
 
+[![Join the chat at https://gitter.im/osureplay/Lobby](https://badges.gitter.im/osureplay/Lobby.svg)](https://gitter.im/osureplay/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Pass in a .osr replay, .osz map, and a filename for the .mpg video, and ideally it'd crank out a video. Still heavily under development, so nothing works. Don't @ me.
 
 What is osu?
