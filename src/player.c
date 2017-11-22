@@ -1,16 +1,16 @@
 #include "player.h"
+#include "common.h"
 #include "playfield.h"
+#include "utils.h"
 #include <GL/freeglut.h>
 #include <GL/gl.h>
 #include <stdio.h>
-#include <time.h>
 
 playfield_t *playfield;
-time_t timestart;
+uint64 timestart;
 
 void frameupdate(int framecount) {
-    time_t timenow = time(NULL), elapsed = timenow - timestart;
-    printf("%ld\n", elapsed);
+    printf("%lld\n", timestart);
     glutTimerFunc(1000 / playfield->fps, frameupdate, framecount + 1);
 }
 
@@ -22,13 +22,13 @@ void player_main(playfield_t *playfield_, int argc, char **argv) {
     playfield = playfield_;
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE);
+    glutInitDisplayMode(GLUT_DOUBLE);
     glutInitWindowSize(playfield->width, playfield->height);
     glutCreateWindow("osu!replay");
 
     glutDisplayFunc(framerender);
     glutTimerFunc(1000 / playfield->fps, frameupdate, 0);
 
-    timestart = time(NULL);
+    timestart = curtime();
     glutMainLoop();
 }

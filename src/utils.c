@@ -7,10 +7,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <zip.h>
 
 int checkexists(char *filename) { return access(filename, F_OK) != -1; }
+
+uint64 curtime() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+}
 
 char *extractandfind(char *srcfile, char *destdir, char *maphash) {
     char errbuf[100], zipbuf[100], fullname[1024], *beatmapfilename;
