@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #define MAXCOMBOCOLORS 8
+#define UNUSED(x) (void)(x)
 
 typedef unsigned char byte;
 typedef unsigned int uint;

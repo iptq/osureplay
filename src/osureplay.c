@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
     playfield->width = 1366;
     playfield->height = 768;
     playfield->fps = 30;
+    playfield->tick = 0;
 
     // check to make sure the files exist
     char *osrfilename = argv[1];
@@ -132,6 +133,9 @@ int main(int argc, char **argv) {
     free(mapbuf);
     playfield->beatmap = beatmap;
 
+#ifdef GUI_PLAYER
+    UNUSED(mp4filename);
+#else
     char mp3filename[1024];
     sprintf(mp3filename, "%s/%s", oszdir, beatmap->audiofilename);
     uint mp3length_usec = getmp3length(mp3filename);
@@ -145,8 +149,6 @@ int main(int argc, char **argv) {
     FILE *vidfile;
     int outbuf_size, size, ret, got_output;
     uint8_t *outbuf, *picture_buf;
-
-    playfield->tick = 0;
 
     codec = avcodec_find_encoder(AV_CODEC_ID_MPEG1VIDEO);
     ctx = avcodec_alloc_context3(codec);
@@ -249,6 +251,7 @@ int main(int argc, char **argv) {
     avcodec_close(ctx);
     av_free(ctx);
     av_free(picture);
+#endif
 
     free_playfield(playfield);
 

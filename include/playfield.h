@@ -3,7 +3,6 @@
 
 #include "beatmap.h"
 #include "replay.h"
-#include <cairo.h>
 #include <libavcodec/avcodec.h>
 
 typedef struct playfield {

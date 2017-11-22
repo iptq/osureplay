@@ -19,7 +19,7 @@ Roadmap
   - [ ] draw hit circles
   - [ ] calculate slider shapes
   - [ ] hud
-- [ ] draw cairo surface to avframe
+- [ ] draw opengl surface to avframe
 - [ ] make it more user friendly
 
 Contact
