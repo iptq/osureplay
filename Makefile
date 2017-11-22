@@ -11,7 +11,7 @@ LIBDIRS =
 LIBS = -lavcodec -lavformat -lavutil -lcairo -lcrypto -lssl -lzip
 
 CC = gcc
-CFLAGS = -g -Werror -Wall -Og -fdce -fdata-sections -ffunction-sections -std=c11 -c $(INCLUDEDIRS)
+CFLAGS = -g -Werror -Wall -Og -fdce -fdata-sections -ffunction-sections -std=c11 -Wno-error=maybe-uninitialized -c $(INCLUDEDIRS)
 LDFLAGS = $(LIBDIRS)
 LDLIBS = $(LIBS)
 

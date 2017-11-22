@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "common.h"
 #include <errno.h>
+#include <libavformat/avformat.h>
 #include <openssl/md5.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +9,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <zip.h>
+
+int checkexists(char *filename) { return access(filename, F_OK) != -1; }
 
 char *extractandfind(char *srcfile, char *destdir, char *maphash) {
     char errbuf[100], zipbuf[100], fullname[1024], *beatmapfilename;
@@ -82,6 +85,17 @@ char *extractandfind(char *srcfile, char *destdir, char *maphash) {
         return NULL;
     }
     return beatmapfilename;
+}
+
+// https://stackoverflow.com/a/6452150
+uint getmp3length(char *filename) {
+    AVFormatContext *fctx = avformat_alloc_context();
+    avformat_open_input(&fctx, filename, NULL, NULL);
+    avformat_find_stream_info(fctx, NULL);
+    int duration = fctx->duration;
+    avformat_close_input(&fctx);
+    avformat_free_context(fctx);
+    return duration;
 }
 
 // https://stackoverflow.com/a/10324904

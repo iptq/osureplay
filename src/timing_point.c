@@ -1,16 +1,17 @@
+#define _POSIX_SOURCE
+
 #include "timing_point.h"
+#include <stdio.h>
+#include <string.h>
 
 void parse_timing_point(timing_point_t *t, char *line) {
-    char *token;
+    // TODO check if maybe-uninitialized warning is a gcc bug
+
+    char *token, *saveptr = line;
     double second;
     int tmp, i = 0;
 
-    token = strtok(line, ",");
-    while (token != NULL) {
-        // if (token == NULL) {
-        //     fprintf(stderr, "Error when parsing timing point: '%s'\n", line);
-        //     exit(1);
-        // }
+    while ((token = strtok_r(saveptr, ",", &saveptr))) {
         switch (i) {
         case 0:
             sscanf(token, "%d", &t->offset);
@@ -45,7 +46,6 @@ void parse_timing_point(timing_point_t *t, char *line) {
             fprintf(stderr, "Too many tokens in timing point (i=%d)..\n", i);
             exit(1);
         }
-        token = strtok(NULL, ",");
         ++i;
     }
 }

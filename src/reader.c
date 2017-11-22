@@ -1,4 +1,5 @@
 #include "reader.h"
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,8 +12,8 @@ int reader_read_int(reader_t *r) {
     return x;
 }
 
-short reader_read_short(reader_t *r) {
-    short x;
+int16_t reader_read_short(reader_t *r) {
+    int16_t x;
     memcpy(&x, &r->blob[r->pos], sizeof(short));
     r->pos += sizeof(short);
     return x;

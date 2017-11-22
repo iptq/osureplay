@@ -16,16 +16,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int checkexists(char *filename);
-uint getmp3length(char *filename);
-
 int main(int argc, char **argv) {
     beatmap_t *beatmap;
     playfield_t *playfield;
     replay_t *replay;
-
-    av_register_all();
-    avcodec_register_all();
 
     // TODO: an actual argument parser
     if (argc < 4) {
@@ -33,13 +27,13 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    av_register_all();
+    avcodec_register_all();
+
     playfield = (playfield_t *)malloc(sizeof(playfield_t));
     playfield->width = 1366;
     playfield->height = 768;
     playfield->fps = 30;
-    playfield->surface = cairo_image_surface_create(
-        CAIRO_FORMAT_ARGB32, playfield->width, playfield->height);
-    playfield->cr = cairo_create(playfield->surface);
 
     // check to make sure the files exist
     char *osrfilename = argv[1];
@@ -259,17 +253,4 @@ int main(int argc, char **argv) {
     free_playfield(playfield);
 
     return 0;
-}
-
-int checkexists(char *filename) { return access(filename, F_OK) != -1; }
-
-// https://stackoverflow.com/a/6452150
-uint getmp3length(char *filename) {
-    AVFormatContext *fctx = avformat_alloc_context();
-    avformat_open_input(&fctx, filename, NULL, NULL);
-    avformat_find_stream_info(fctx, NULL);
-    int duration = fctx->duration;
-    avformat_close_input(&fctx);
-    avformat_free_context(fctx);
-    return duration;
 }
