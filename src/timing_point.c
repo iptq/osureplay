@@ -1,8 +1,6 @@
 #define _POSIX_SOURCE
 
 #include "timing_point.h"
-#include <stdio.h>
-#include <string.h>
 
 void parse_timing_point(timing_point_t *t, char *line) {
     // TODO check if maybe-uninitialized warning is a gcc bug
@@ -18,9 +16,8 @@ void parse_timing_point(timing_point_t *t, char *line) {
             break;
         case 1:
             sscanf(token, "%lf", &second);
-            if (second >= 0) {
+            if (second >= 0)
                 t->bpm = 1000.0 * 60 / second;
-            }
             break;
         case 2:
             sscanf(token, "%d", &t->meter);

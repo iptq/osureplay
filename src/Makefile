@@ -6,9 +6,9 @@ EXEFILE = ../osureplay
 SRCFILES = $(wildcard $(SRCDIR)/*.c)
 OBJFILES = $(notdir $(patsubst %.c,%.o,$(SRCFILES)))
 
-INCLUDEDIRS = -I../include -I/usr/local/lib/libzip/include
-LIBDIRS = 
-LIBS = -lavcodec -lavformat -lavutil -lcrypto -lssl -lzip -lglut
+INCLUDEDIRS = -I../include -I../ext/nanovg/src -I/usr/local/lib/libzip/include
+LIBDIRS = -L../ext/nanovg/src
+LIBS = -lavcodec -lavformat -lavutil -lcrypto -lssl `pkg-config --static --libs libzip glfw3 gnutls`
 
 CC = gcc
 CFLAGS = -g -Werror -Wall -Og -fdce -fdata-sections -ffunction-sections -std=c11 -Wno-error=maybe-uninitialized -c $(INCLUDEDIRS)

@@ -1,10 +1,6 @@
 #include "replay.h"
 #include "common.h"
 #include "reader.h"
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 void parse_replay(replay_t *r, char *contents) {
     reader_t reader = {contents, 0, strlen(contents)};
@@ -29,7 +25,7 @@ void parse_replay(replay_t *r, char *contents) {
     r->katus = reader_read_short(&reader);
     r->misses = reader_read_short(&reader);
     r->score = reader_read_int(&reader);
-    r->maxCombo = reader_read_short(&reader);
+    r->maxcombo = reader_read_short(&reader);
     r->fc = reader_read_byte(&reader);
 
     if (reader_read_byte(&reader)) {

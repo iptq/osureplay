@@ -1,6 +1,17 @@
 #ifndef utils_h_
 #define utils_h_
 
+#include <errno.h>
+#include <libavformat/avformat.h>
+#include <openssl/md5.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <zip.h>
+
 #include "common.h"
 
 int checkexists(char *filename);

@@ -1,8 +1,13 @@
 #ifndef replay_h_
 #define replay_h_
 
-#include "common.h"
+#include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "common.h"
 
 typedef struct replay {
     GameMode game_mode;
@@ -17,7 +22,7 @@ typedef struct replay {
     int16_t katus;
     int16_t misses;
     int score;
-    int16_t maxCombo;
+    int16_t maxcombo;
     bool fc;
     int mods;
     bool has_lifebar;

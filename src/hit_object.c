@@ -1,5 +1,4 @@
 #include "hit_object.h"
-#include <stdlib.h>
 
 void init_hit_object_list(hit_object_list_t *hs) {
     hs->size = 0;

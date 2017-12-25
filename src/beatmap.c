@@ -1,10 +1,6 @@
 #include "beatmap.h"
 #include "reader.h"
 #include "timing_point.h"
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 void parse_beatmap(beatmap_t *b, char *contents) {
     reader_t reader = {contents, 0, strlen(contents)};

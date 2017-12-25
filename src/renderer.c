@@ -1,10 +1,6 @@
 #include "renderer.h"
 #include "playfield.h"
 #include "utils.h"
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavutil/frame.h>
-#include <libavutil/imgutils.h>
 
 void renderer_main(playfield_t *playfield, char *mp4filename) {
     av_register_all();

@@ -1,6 +1,8 @@
 #ifndef hit_object_h_
 #define hit_object_h_
 
+#include <stdlib.h>
+
 #include "common.h"
 
 typedef struct hit_object {

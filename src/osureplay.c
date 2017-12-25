@@ -1,9 +1,3 @@
-#include "beatmap.h"
-#include "player.h"
-#include "playfield.h"
-#include "renderer.h"
-#include "replay.h"
-#include "utils.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -13,6 +7,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "beatmap.h"
+#include "player.h"
+#include "playfield.h"
+#include "renderer.h"
+#include "replay.h"
+#include "utils.h"
 
 int main(int argc, char **argv) {
     beatmap_t *beatmap;

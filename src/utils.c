@@ -1,15 +1,5 @@
 #include "utils.h"
 #include "common.h"
-#include <errno.h>
-#include <libavformat/avformat.h>
-#include <openssl/md5.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <zip.h>
 
 int checkexists(char *filename) { return access(filename, F_OK) != -1; }
 

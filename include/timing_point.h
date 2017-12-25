@@ -1,10 +1,11 @@
 #ifndef timing_point_h_
 #define timing_point_h_
 
-#include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "common.h"
 
 typedef struct timing_point {
     int offset;

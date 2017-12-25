@@ -1,6 +1,10 @@
 #ifndef reader_h_
 #define reader_h_
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "common.h"
 
 typedef struct reader {

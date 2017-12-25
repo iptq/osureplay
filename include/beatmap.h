@@ -1,6 +1,11 @@
 #ifndef beatmap_h_
 #define beatmap_h_
 
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "timing_point.h"
 
 typedef struct beatmap {

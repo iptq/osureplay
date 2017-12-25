@@ -1,7 +1,4 @@
 #include "reader.h"
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 byte reader_read_byte(reader_t *r) { return r->blob[r->pos++]; }
 
