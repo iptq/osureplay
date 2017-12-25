@@ -1,3 +1,4 @@
 node_modules
 wd
-example/**/*.mp4
+.vscode
+example
