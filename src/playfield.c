@@ -27,5 +27,6 @@ void render_playfield() {}
 void free_playfield(playfield_t *p) {
     free_beatmap(p->beatmap);
     free_replay(p->replay);
+    free_skin(p->skin);
     free(p);
 }

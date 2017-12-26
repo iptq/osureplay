@@ -15,6 +15,8 @@ typedef struct playfield {
 
     beatmap_t *beatmap;
     replay_t *replay;
+    skin_t *skin;
+
     uint mp3_length;  // in milliseconds
 } playfield_t;
 

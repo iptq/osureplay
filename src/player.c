@@ -26,7 +26,10 @@ void player_main(playfield_t *playfield_, int argc, char **argv) {
     }
 
     GLFWwindow *window;
-    if (!(window = glfwCreateWindow(1024, 768, "osu!replay", NULL, NULL))) {
+    if (!(window = glfwCreateWindow(playfield->width, playfield->height,
+                                    "osu!replay", NULL, NULL))) {
+        fprintf(stderr, "Failed to create window.\n");
+        exit(1);
     }
 
     uint64 start_time = curtime();

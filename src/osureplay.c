@@ -13,12 +13,14 @@
 #include "playfield.h"
 #include "renderer.h"
 #include "replay.h"
+#include "skin.h"
 #include "utils.h"
 
 int main(int argc, char **argv) {
     beatmap_t *beatmap;
     playfield_t *playfield;
     replay_t *replay;
+    skin_t *skin;
 
     // TODO: an actual argument parser
     if (argc < 4) {
