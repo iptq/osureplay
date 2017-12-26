@@ -1,14 +1,15 @@
 SRCDIR = .
 BUILDDIR = ../build
 OBJDIR = $(BUILDDIR)/obj/src
+EXTDIR = ../ext
 EXEFILE = ../osureplay
 
 SRCFILES = $(wildcard $(SRCDIR)/*.c)
 OBJFILES = $(notdir $(patsubst %.c,%.o,$(SRCFILES)))
 
 INCLUDEDIRS = -I../include -I../ext/nanovg/src -I/usr/local/lib/libzip/include
-LIBDIRS = -L../ext/nanovg/src
-LIBS = -lavcodec -lavformat -lavutil -lcrypto -lssl `pkg-config --static --libs libzip glfw3`
+LIBDIRS =
+LIBS = -lavcodec -lavformat -lavutil -lcrypto -lssl `pkg-config --static --libs libzip glew glfw3`
 
 CC = gcc
 CFLAGS = -g -Werror -Wall -Og -fdce -fdata-sections -ffunction-sections -std=c11 -Wno-error=maybe-uninitialized -c $(INCLUDEDIRS)

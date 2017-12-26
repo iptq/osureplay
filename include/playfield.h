@@ -16,6 +16,7 @@ typedef struct playfield {
     uint mp3_length;  // in milliseconds
 } playfield_t;
 
+void draw_playfield(playfield_t *p);
 void init_playfield(playfield_t *p);
 void render_playfield();
 void free_playfield(playfield_t *p);

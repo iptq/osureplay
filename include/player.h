@@ -2,7 +2,9 @@
 #define player_h_
 
 #define _BSD_SOURCE
+#define NANOVG_GL3_IMPLEMENTATION
 
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <unistd.h>

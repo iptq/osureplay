@@ -31,12 +31,15 @@ void player_main(playfield_t *playfield_, int argc, char **argv) {
 
     uint64 start_time = curtime();
     int sleep_by = 1000000 / FRAMESPERSECOND;
+
     while (!glfwWindowShouldClose(window)) {
         uint64 now_time = curtime(), elapsed_time = now_time - start_time;
-        printf("seconds : %llu\n", elapsed_time);
+        printf("mseconds : %llu\n", elapsed_time);
 
         if (elapsed_time > playfield->mp3_length)
             break;
+
+        draw_playfield(playfield);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
