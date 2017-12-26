@@ -32,6 +32,7 @@ void player_main(playfield_t *playfield_, int argc, char **argv) {
     uint64 start_time = curtime();
     int sleep_by = 1000000 / FRAMESPERSECOND;
 
+    glfwMakeContextCurrent(window);
     while (!glfwWindowShouldClose(window)) {
         uint64 now_time = curtime(), elapsed_time = now_time - start_time;
         printf("mseconds : %llu\n", elapsed_time);

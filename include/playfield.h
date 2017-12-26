@@ -1,9 +1,11 @@
 #ifndef playfield_h_
 #define playfield_h_
 
+#include <GL/glew.h>
+#include <libavcodec/avcodec.h>
+
 #include "beatmap.h"
 #include "replay.h"
-#include <libavcodec/avcodec.h>
 
 typedef struct playfield {
     int fps;
