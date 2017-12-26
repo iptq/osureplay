@@ -12,7 +12,37 @@ void framerender() {
     // todo
 }
 
+void error_callback(int error, const char *description) {
+    printf("ERROR: %s\n", description);
+}
+
 void player_main(playfield_t *playfield_, int argc, char **argv) {
     playfield = playfield_;
-    glfwInit();
+    glfwSetErrorCallback(error_callback);
+
+    if (!glfwInit()) {
+        fprintf(stderr, "Failed to initialize GLFW.\n");
+        exit(1);
+    }
+
+    GLFWwindow *window;
+    if (!(window = glfwCreateWindow(1024, 768, "osu!replay", NULL, NULL))) {
+    }
+
+    uint64 start_time = curtime();
+    int sleep_by = 1000000 / FRAMESPERSECOND;
+    while (!glfwWindowShouldClose(window)) {
+        uint64 now_time = curtime(), elapsed_time = now_time - start_time;
+        printf("seconds : %llu\n", elapsed_time);
+
+        if (elapsed_time > playfield->mp3_length)
+            break;
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+        usleep(sleep_by);
+    }
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }

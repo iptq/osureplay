@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #define MAXCOMBOCOLORS 8
+#define FRAMESPERSECOND 60
 #define UNUSED(x) (void)(x)
 
 typedef unsigned char byte;

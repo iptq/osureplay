@@ -91,10 +91,10 @@ uint getmp3length(char *filename) {
     AVFormatContext *fctx = avformat_alloc_context();
     avformat_open_input(&fctx, filename, NULL, NULL);
     avformat_find_stream_info(fctx, NULL);
-    int duration = fctx->duration;
+    int64_t duration = fctx->duration;
     avformat_close_input(&fctx);
     avformat_free_context(fctx);
-    return duration;
+    return duration / 1000;
 }
 
 // https://stackoverflow.com/a/10324904
