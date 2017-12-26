@@ -6,6 +6,7 @@
 
 #include "beatmap.h"
 #include "replay.h"
+#include "skin.h"
 
 typedef struct playfield {
     int fps;

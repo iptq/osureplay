@@ -1,6 +1,8 @@
 #ifndef skin_h_
 #define skin_h_
 
+#include <stdlib.h>
+
 #include "common.h"
 
 typedef struct texture_t {
@@ -15,9 +17,10 @@ typedef struct {
 } skin_t;
 
 void free_skin(skin_t *s);
+void free_texture(texture_t *t);
 uint hash_string(char *s);
-texture_t *load_texture(char *filename);
-skin_t *load_skin(char *filename);
-void skin_add_texture(skin_t *skin, char *name, texture_t *texture);
+void load_skin(skin_t *s, char *dirname);
+void load_texture(texture_t *t, char *filename);
+void skin_add_texture(skin_t *skin, texture_t *texture);
 
 #endif

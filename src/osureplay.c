@@ -2,13 +2,13 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <openssl/md5.h>
-#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #include "beatmap.h"
+#include "common.h"
 #include "player.h"
 #include "playfield.h"
 #include "renderer.h"
@@ -134,6 +134,11 @@ int main(int argc, char **argv) {
     char mp3filename[1024];
     sprintf(mp3filename, "%s/%s", oszdir, beatmap->audiofilename);
     playfield->mp3_length = getmp3length(mp3filename);
+
+    // read and parse skin file
+    skin = (skin_t *)malloc(sizeof(skin_t));
+    load_skin(skin, "skin");
+    playfield->skin = skin;
 
 #ifdef GUI_PLAYER
     UNUSED(mp4filename);

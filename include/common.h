@@ -2,6 +2,8 @@
 #define common_h_
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define MAXCOMBOCOLORS 8
 #define FRAMESPERSECOND 60

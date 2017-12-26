@@ -6,9 +6,9 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <stdio.h>
 #include <unistd.h>
 
+#include "common.h"
 #include "playfield.h"
 
 void player_main(playfield_t *playfield, int argc, char **argv);
