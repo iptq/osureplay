@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define MAXCOMBOCOLORS 8
 #define FRAMESPERSECOND 60
+#define MAXCOMBOCOLORS 8
+#define MAXTEXTURES 200
 #define UNUSED(x) (void)(x)
 
 typedef unsigned char byte;
