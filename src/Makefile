@@ -7,9 +7,9 @@ EXEFILE = ../osureplay
 SRCFILES = $(wildcard $(SRCDIR)/*.c)
 OBJFILES = $(notdir $(patsubst %.c,%.o,$(SRCFILES)))
 
-INCLUDEDIRS = -I../include -I../ext/soil/src -I/usr/local/lib/libzip/include
-LIBDIRS = -L../ext/soil/lib
-LIBS = -lavcodec -lavformat -lavutil -lcrypto -lssl -lSOIL `pkg-config --static --libs libzip glew glfw3`
+INCLUDEDIRS = -I../include -I../ext/nanovg/src -I/usr/local/lib/libzip/include
+LIBDIRS = -L../ext/nanovg/build
+LIBS = -lavcodec -lavformat -lavutil -lcrypto -lnanovg -lssl `pkg-config --static --libs libzip glew glfw3`
 
 CC = gcc
 CFLAGS = -g -Werror -Wall -Og -fdce -fdata-sections -ffunction-sections -std=c11 -Wno-error=maybe-uninitialized -c $(INCLUDEDIRS)
@@ -21,12 +21,13 @@ endif
 LDFLAGS = $(LIBDIRS)
 LDLIBS = $(LIBS)
 
-.PHONY: clean all lint soil $(OBJDIR)
+.PHONY: clean all lint nanovg $(OBJDIR)
 
 all: $(EXEFILE)
 
-soil:
-	$(MAKE) -C $(EXTDIR)/soil
+nanovg:
+	(cd $(EXTDIR)/nanovg; premake4 gmake)
+	$(MAKE) -C $(EXTDIR)/nanovg/build nanovg
 
 $(addprefix $(OBJDIR)/, $(OBJFILES)): | $(OBJDIR)
 
@@ -39,7 +40,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 
 make-depend=$(CC) -MM -MF $3 -MP -MT $2 $(CFLAGS) $1
 
-$(EXEFILE): $(addprefix $(OBJDIR)/, $(OBJFILES)) soil
+$(EXEFILE): $(addprefix $(OBJDIR)/, $(OBJFILES)) nanovg
 	$(CC) $(LDFLAGS) $(addprefix $(OBJDIR)/, $(OBJFILES)) -o $@ $(LDLIBS)
 
 clean:

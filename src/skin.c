@@ -25,7 +25,7 @@ uint hash_string(const char *string) {
     return h % MAXTEXTURES;
 }
 
-void load_skin(skin_t *skin, char *dirname) {
+void load_skin(NVGcontext *ctx, skin_t *skin, char *dirname) {
     skin->n_loaded = 0;
     skin->textures = (texture_t **)calloc(MAXTEXTURES, sizeof(texture_t *));
 
@@ -57,15 +57,7 @@ void load_skin(skin_t *skin, char *dirname) {
 }
 
 void load_texture(texture_t *texture, char *filename) {
-    printf("loading texture '%s' from '%s'\n", texture->name, filename);
-    int handle = SOIL_load_OGL_texture(
-        filename, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
-        SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB |
-            SOIL_FLAG_COMPRESS_TO_DXT);
-    if (!handle) {
-        fprintf(stderr, "SOIL loading error: '%s'\n", SOIL_last_result());
-        exit(1);
-    }
+    int handle = 0;
     texture->handle = handle;
 }
 

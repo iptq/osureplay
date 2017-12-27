@@ -1,3 +1,6 @@
+#define NANOVG_GL3_IMPLEMENTATION
+#define GLFW_INCLUDE_GLEXT
+
 #include "player.h"
 #include "common.h"
 #include "playfield.h"
@@ -17,6 +20,8 @@ void error_callback(int error, const char *description) {
 }
 
 void player_main(playfield_t *playfield_, int argc, char **argv) {
+    NVGcontext *ctx;
+
     playfield = playfield_;
     glfwSetErrorCallback(error_callback);
 
@@ -32,11 +37,13 @@ void player_main(playfield_t *playfield_, int argc, char **argv) {
         exit(1);
     }
 
+    ctx = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+
     uint64 start_time = curtime();
     int sleep_by = MILLION / FRAMESPERSECOND;
 
     glfwMakeContextCurrent(window);
-    load_skin(playfield->skin, "skin");
+    load_skin(ctx, playfield->skin, "skin");
 
     while (!glfwWindowShouldClose(window)) {
         uint64 now_time = curtime(), elapsed_time = now_time - start_time;
