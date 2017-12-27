@@ -137,7 +137,6 @@ int main(int argc, char **argv) {
 
     // read and parse skin file
     skin = (skin_t *)malloc(sizeof(skin_t));
-    load_skin(skin, "skin");
     playfield->skin = skin;
 
 #ifdef GUI_PLAYER

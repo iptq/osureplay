@@ -1,12 +1,13 @@
 #ifndef skin_h_
 #define skin_h_
 
+#include "SOIL.h"
 #include <stdlib.h>
 
 #include "common.h"
 
 typedef struct texture_t {
-    char *name;
+    const char *name;
     int handle;
     struct texture_t *next;
 } texture_t;

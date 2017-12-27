@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define MAXCOMBOCOLORS 8
 #define FRAMESPERSECOND 60
