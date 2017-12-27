@@ -9,6 +9,8 @@
 #define FRAMESPERSECOND 60
 #define MAXCOMBOCOLORS 8
 #define MAXTEXTURES 200
+#define MILLION 1000000
+
 #define UNUSED(x) (void)(x)
 
 typedef unsigned char byte;
@@ -18,11 +20,11 @@ typedef unsigned long int uint32;
 typedef long long int int64;
 typedef unsigned long long int uint64;
 
-typedef enum GameMode {
+typedef enum {
     STANDARD = 0,
     TAIKO = 1,
     CATCH = 2,
-    MANIA = 3
+    MANIA = 3,
 } GameMode;
 
 #endif

@@ -7,18 +7,18 @@
 
 #include "common.h"
 
-typedef struct reader {
+typedef struct {
     char *blob;
     int pos;
     int len;
 } reader_t;
 
-byte reader_read_byte(reader_t *r);
-int reader_read_int(reader_t *r);
-short reader_read_short(reader_t *r);
-uint32 reader_read_uleb32(reader_t *r);
-uint64 reader_read_uleb64(reader_t *r);
-char *reader_read_string(reader_t *r, int length);
-char *reader_read_line(reader_t *r);
+byte reader_read_byte(reader_t *reader);
+int reader_read_int(reader_t *reader);
+short reader_read_short(reader_t *reader);
+uint32 reader_read_uleb32(reader_t *reader);
+uint64 reader_read_uleb64(reader_t *reader);
+char *reader_read_string(reader_t *reader, int length);
+char *reader_read_line(reader_t *reader);
 
 #endif

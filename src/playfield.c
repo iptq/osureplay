@@ -2,12 +2,12 @@
 #include "beatmap.h"
 #include "replay.h"
 
-void draw_playfield(playfield_t *p) {
+void draw_playfield(playfield_t *playfield) {
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, p->width, p->height, 0, 0, 1);
+    glOrtho(0, playfield->width, playfield->height, 0, 0, 1);
     glMatrixMode(GL_MODELVIEW);
 
     glBegin(GL_LINE_LOOP);
@@ -18,15 +18,15 @@ void draw_playfield(playfield_t *p) {
     glEnd();
 }
 
-void playfield_load_assets(playfield_t *p) {
+void playfield_load_assets(playfield_t *playfield) {
     // load audio file
 }
 
-void render_playfield() {}
+void render_playfield(playfield_t *playfield) {}
 
-void free_playfield(playfield_t *p) {
-    free_beatmap(p->beatmap);
-    free_replay(p->replay);
-    free_skin(p->skin);
-    free(p);
+void free_playfield(playfield_t *playfield) {
+    free_beatmap(playfield->beatmap);
+    free_replay(playfield->replay);
+    free_skin(playfield->skin);
+    free(playfield);
 }

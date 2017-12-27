@@ -33,7 +33,7 @@ void player_main(playfield_t *playfield_, int argc, char **argv) {
     }
 
     uint64 start_time = curtime();
-    int sleep_by = 1000000 / FRAMESPERSECOND;
+    int sleep_by = MILLION / FRAMESPERSECOND;
 
     glfwMakeContextCurrent(window);
     load_skin(playfield->skin, "skin");

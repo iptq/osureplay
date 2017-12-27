@@ -7,7 +7,7 @@
 
 #include "common.h"
 
-typedef struct timing_point {
+typedef struct {
     int offset;
     bool uninherited;
     double bpm;
@@ -18,16 +18,16 @@ typedef struct timing_point {
     bool kiai;
 } timing_point_t;
 
-typedef struct timing_point_list {
+typedef struct {
     int size;
     int capacity;
     timing_point_t **list;
 } timing_point_list_t;
 
-void parse_timing_point(timing_point_t *t, char *line);
+void parse_timing_point(timing_point_t *point, char *line);
 
-void init_timing_point_list(timing_point_list_t *t);
-void add_timing_point(timing_point_list_t *ts, timing_point_t *t);
-void free_timing_point_list(timing_point_list_t *t);
+void init_timing_point_list(timing_point_list_t *point);
+void add_timing_point(timing_point_list_t *points, timing_point_t *point);
+void free_timing_point_list(timing_point_list_t *point);
 
 #endif

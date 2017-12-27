@@ -7,7 +7,7 @@
 #include "common.h"
 #include "timing_point.h"
 
-typedef struct beatmap {
+typedef struct {
     // General
     char *audiofilename;
     uint audioleadin;
@@ -52,8 +52,8 @@ typedef struct beatmap {
     timing_point_list_t *timing_points;
 } beatmap_t;
 
-void parse_beatmap(beatmap_t *b, char *contents);
-int set_beatmap_prop(beatmap_t *b, char *key, char *value);
-void free_beatmap(beatmap_t *b);
+void parse_beatmap(beatmap_t *beatmap, char *contents);
+int set_beatmap_prop(beatmap_t *beatmap, char *key, char *value);
+void free_beatmap(beatmap_t *beatmap);
 
 #endif

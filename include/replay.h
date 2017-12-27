@@ -7,7 +7,7 @@
 
 #include "common.h"
 
-typedef struct replay {
+typedef struct {
     GameMode game_mode;
     int game_version;
     char *beatmap_hash;
@@ -27,7 +27,7 @@ typedef struct replay {
     char *lifebar;
 } replay_t;
 
-void parse_replay(replay_t *r, char *contents);
-void free_replay(replay_t *r);
+void parse_replay(replay_t *replay, char *contents);
+void free_replay(replay_t *replay);
 
 #endif

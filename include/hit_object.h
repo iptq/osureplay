@@ -5,18 +5,18 @@
 
 #include "common.h"
 
-typedef struct hit_object {
+typedef struct {
 
 } hit_object_t;
 
-typedef struct hit_object_list {
+typedef struct {
     int size;
     int capacity;
     hit_object_t **list;
 } hit_object_list_t;
 
-void init_hit_object_list(hit_object_list_t *hs);
-void add_hit_object(hit_object_list_t *hs, hit_object_t *h);
-void free_hit_object_list(hit_object_list_t *h);
+void init_hit_object_list(hit_object_list_t *objects);
+void add_hit_object(hit_object_list_t *objects, hit_object_t *object);
+void free_hit_object_list(hit_object_list_t *object);
 
 #endif

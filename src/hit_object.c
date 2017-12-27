@@ -1,24 +1,25 @@
 #include "hit_object.h"
 
-void init_hit_object_list(hit_object_list_t *hs) {
-    hs->size = 0;
-    hs->capacity = 40;
-    hs->list = (hit_object_t **)malloc(hs->capacity * sizeof(hit_object_t *));
+void init_hit_object_list(hit_object_list_t *objects) {
+    objects->size = 0;
+    objects->capacity = 40;
+    objects->list =
+        (hit_object_t **)malloc(objects->capacity * sizeof(hit_object_t *));
 }
 
-void add_hit_object(hit_object_list_t *hs, hit_object_t *h) {
-    hs->list[hs->size++] = h;
-    if (hs->size == hs->capacity) {
-        hs->capacity *= 2;
-        hs->list = (hit_object_t **)realloc(
-            hs->list, hs->capacity * sizeof(hit_object_t **));
+void add_hit_object(hit_object_list_t *objects, hit_object_t *object) {
+    objects->list[objects->size++] = object;
+    if (objects->size == objects->capacity) {
+        objects->capacity *= 2;
+        objects->list = (hit_object_t **)realloc(
+            objects->list, objects->capacity * sizeof(hit_object_t **));
     }
 }
 
-void free_hit_object_list(hit_object_list_t *h) {
-    for (int i = 0, l = h->size; i < l; ++i) {
-        free(h->list[i]);
+void free_hit_object_list(hit_object_list_t *objects) {
+    for (int i = 0, l = objects->size; i < l; ++i) {
+        free(objects->list[i]);
     }
-    free(h->list);
-    free(h);
+    free(objects->list);
+    free(objects);
 }

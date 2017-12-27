@@ -8,7 +8,7 @@
 #include "replay.h"
 #include "skin.h"
 
-typedef struct playfield {
+typedef struct {
     int fps;
     int tick;
     int width;
@@ -21,9 +21,9 @@ typedef struct playfield {
     uint mp3_length;  // in milliseconds
 } playfield_t;
 
-void draw_playfield(playfield_t *p);
-void init_playfield(playfield_t *p);
-void render_playfield();
-void free_playfield(playfield_t *p);
+void draw_playfield(playfield_t *playfield);
+void init_playfield(playfield_t *playfield);
+void render_playfield(playfield_t *playfield);
+void free_playfield(playfield_t *playfield);
 
 #endif
