@@ -1,0 +1,6 @@
+[submodule "ext/soil"]
+	path = ext/soil
+	url = https://github.com/kbranigan/Simple-OpenGL-Image-Library.git
+[submodule "ext/nanovg"]
+	path = ext/nanovg
+	url = https://github.com/memononen/nanovg

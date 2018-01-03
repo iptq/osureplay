@@ -26,7 +26,7 @@ LDLIBS = $(LIBS)
 all: $(EXEFILE)
 
 nanovg:
-	(cd $(EXTDIR)/nanovg; premake4 gmake)
+	(cd $(EXTDIR)/nanovg; config=debug premake4 gmake)
 	$(MAKE) -C $(EXTDIR)/nanovg/build nanovg
 
 $(addprefix $(OBJDIR)/, $(OBJFILES)): | $(OBJDIR)
@@ -45,4 +45,5 @@ $(EXEFILE): $(addprefix $(OBJDIR)/, $(OBJFILES)) nanovg
 
 clean:
 	rm -rf $(EXEFILE) $(BUILDDIR)
+	rm -rf $(EXTDIR)/nanovg/build
 	rm -f *.o
