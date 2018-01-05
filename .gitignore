@@ -3,3 +3,4 @@ working-directory
 .vscode
 example
 npm-debug.log
+out.*
