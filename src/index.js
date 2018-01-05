@@ -1,6 +1,8 @@
+const child_process = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
+const Canvas = require("canvas");
 const md5File = require("md5-file/promise");
 
 const Beatmap = require("./beatmap");
@@ -86,6 +88,27 @@ let main = async function() {
   let skin = new Skin();
   await skin.load();
   skin.options = await skin.parseIni();
+
+  // prepare canvas
+  let canvas = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT),
+      ctx = canvas.getContext("2d");
+  // recorder
+  let recorder = child_process.spawn("ffmpeg", [
+    "-y", "-f", "image2pipe", "-vcodec", "mjpeg", "-r", "60", "-i", "-",
+    "-vcodec", "h264", "-r", "60", folderName + "/noaudio.mp4"
+  ]);
+
+  // process frames
+  let end = 600;
+  for (let frame = 0; frame < end; ++frame) {
+    try {
+      let msec = frame * 1000 / 60.0;
+
+      await utils.record(canvas, recorder);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 };
 
 module.exports = main;

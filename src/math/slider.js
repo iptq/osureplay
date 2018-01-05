@@ -72,8 +72,9 @@ class SliderMath {
       return SliderMath.rotate(circumCenter, points[1], radians);
     }
   }
-  static isLeft(a, b, c) {
-    return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) < 0;
+  static isLine(a, b, c) {
+    // checks if a, b, and c are on the same line
+    return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) == 0;
   }
   static pointOnLine(p1, p2, length) {
     // gets the point on the line from p1 to p2 that's length away from p1

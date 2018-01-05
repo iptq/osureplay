@@ -41,7 +41,20 @@ let readFileAsync = function(filename) {
   });
 };
 
+let record = function(canvas, recorder) {
+  return new Promise(function(resolve) {
+    let stream = canvas.jpegStream({
+      bufsize : 4096,     // output buffer size in bytes, default: 4096
+      quality : 75,       // JPEG quality (0-100) default: 75
+      progressive : false // true for progressive compression, default: false
+    });
+    stream.on("data", function(chunk) { recorder.stdin.write(chunk); });
+    stream.on("end", function() { resolve(); });
+  });
+};
+
 module.exports.decompressLZMA = decompressLZMA;
 module.exports.extract = extract;
 module.exports.randomString = randomString;
 module.exports.readFileAsync = readFileAsync;
+module.exports.record = record;
