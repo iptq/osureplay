@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "rm -rf wd && time ./convert example/$song/replay.osr example/$song/map.osz example/$song/video.mp4"
+    "test": "rm -rf working-directory && node index example/$SONG/replay.osr example/$SONG/map.osz example/$SONG/video.mp4"
   },
   "author": "",
   "license": "ISC",

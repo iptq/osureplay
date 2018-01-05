@@ -1,4 +1,5 @@
 node_modules
-wd
+working-directory
 .vscode
 example
+npm-debug.log
