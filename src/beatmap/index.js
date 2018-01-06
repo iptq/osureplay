@@ -10,13 +10,13 @@ const sectionPattern = /^\[([a-zA-Z0-9]+)\]$/,
 
 class Beatmap {
   constructor() {}
-  async parse(file) {
+  static async parse(file) {
     if (!fs.existsSync(file)) {
       callback(new Error("File doesn't exist."));
     }
 
     let data = await utils.readFileAsync(file);
-    let result = await this.parseString(data.toString());
+    let result = await Beatmap.parseString(data.toString());
     console.log("Beatmap parsed.");
     return result;
   }
@@ -32,7 +32,7 @@ class Beatmap {
     }
     return id;
   }
-  async parseString(data) {
+  static async parseString(data) {
     var i, id;
     var beatmap = new Beatmap();
     var lines = data.split(/\r?\n/);
@@ -186,8 +186,6 @@ class Beatmap {
             {startTime : parseInt(members[1]), endTime : parseInt(members[2])});
       }
     }
-
-    // console.log(sections);
     return beatmap;
   }
 

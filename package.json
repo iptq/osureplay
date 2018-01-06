@@ -1,23 +1,19 @@
 {
   "name": "osureplay",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "rm -rf working-directory && node index example/$SONG/replay.osr example/$SONG/map.osz example/$SONG/video.mp4"
+    "test": "rm -rf working-directory && node index example/$SONG/replay.osr example/$SONG/map.osz out.mp4"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "asyncawait": "^1.0.6",
-    "bluebird": "^3.5.0",
     "canvas": "^1.6.5",
-    "epipebomb": "^1.0.0",
     "lzma": "^2.3.2",
     "lzma-native": "^2.0.1",
     "md5-file": "^3.1.1",
     "mp3-duration": "^1.0.10",
-    "osu-parser": "^0.3.3",
     "pypacker": "^0.2.1",
     "unzip": "^0.1.11"
   }

@@ -2,10 +2,11 @@ const child_process = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-const Canvas = require("canvas");
+const Canvas = require("canvas"), Image = Canvas.Image;
 const md5File = require("md5-file/promise");
 
 const Beatmap = require("./beatmap");
+const Player = require("./player");
 const Replay = require("./replay");
 const Skin = require("./skin");
 const constants = require("./constants");
@@ -81,8 +82,11 @@ let main = async function() {
     process.stderr.write("md5 hash didn't match any\n");
     process.exit(1);
   }
-  let map = new Beatmap();
-  map.parse(mapFile);
+  let beatmap = await Beatmap.parse(mapFile);
+
+  beatmap.BackgroundImage = new Image();
+  beatmap.BackgroundImage.src =
+      await utils.readFileAsync(path.join(mapFolder, beatmap.bgFilename));
 
   // load skin
   let skin = new Skin();
@@ -90,25 +94,45 @@ let main = async function() {
   skin.options = await skin.parseIni();
 
   // prepare canvas
-  let canvas = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT),
-      ctx = canvas.getContext("2d");
+  let canvas = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
+  let player = new Player(beatmap, skin, replay, canvas);
   // recorder
   let recorder = child_process.spawn("ffmpeg", [
     "-y", "-f", "image2pipe", "-vcodec", "mjpeg", "-r", "60", "-i", "-",
-    "-vcodec", "h264", "-r", "60", folderName + "/noaudio.mp4"
+    "-vcodec", "h264", "-r", "60", path.join(folderName, "noaudio.mp4")
   ]);
 
+  //
   // process frames
-  let end = 600;
-  for (let frame = 0; frame < end; ++frame) {
+  //
+  let END = 600;
+  for (let frame = 0; frame < END; ++frame) {
     try {
       let msec = frame * 1000 / 60.0;
+      player.render(msec);
 
-      await utils.record(canvas, recorder);
+      await utils.record(player.canvas, recorder);
+      let percent = Math.round((frame + 1) * 10000.00 / END) / 100.0;
+      let s1 = "\rProcessing " + percent + "%";
+      process.stdout.write(s1 + Array(40 - s1.length).join(" "));
     } catch (e) {
       console.error(e);
     }
   }
+  console.log();
+
+  recorder.stdin.end();
+  recorder.on("close", function() {
+    // mix audio
+    var mixer = child_process.spawn("ffmpeg", [
+      "-y", "-i", path.join(folderName, "noaudio.mp4"), "-itsoffset",
+      "00:00:" + "00", "-i", path.join(mapFolder, beatmap.AudioFilename),
+      "-vcodec", "copy", "-acodec", "libmp3lame", "-shortest", outputFile
+    ]);
+
+    mixer.stderr.on("data", function(data) { process.stdout.write(data); });
+    mixer.on("close", function() { console.log("Done"); });
+  });
 };
 
 module.exports = main;
