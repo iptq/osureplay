@@ -19,6 +19,8 @@ class Player {
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
     ctx.fillRect(0, 0, constants.FULL_WIDTH, constants.FULL_HEIGHT);
 
+    // draw scorebar-bg
+
     ctx.restore();
   }
 }

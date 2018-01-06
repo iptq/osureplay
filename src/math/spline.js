@@ -41,7 +41,12 @@ class BezierApproximator {
   }
 
   static isFlatEnough(curve) {
-    // TODO
+    for (var i = 1; i < curve.length - 1; ++i) {
+      if ((curve[i - 1].sub(curve[i].smul(2)).add(curve[i + 1])).m2 >
+          constants.bezierTolerance)
+        return false;
+    }
+    return true;
   }
 
   calculate() {

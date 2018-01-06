@@ -27,6 +27,7 @@ class Vector {
     // magnitude
     return Math.pow(this.x * this.x + this.y * this.y, 0.5);
   }
+  get m2() { return this.x * this.x + this.y * this.y; }
   add(v) { return new Vector(this.x + v.x, this.y + v.y); }
   sub(v) { return new Vector(this.x - v.x, this.y - v.y); }
   smul(c) { return new Vector(c * this.x, c * this.y); }
