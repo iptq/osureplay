@@ -136,14 +136,19 @@ class HitObject {
     stackVector.smul(stackHeight);
     return this.position.o2r().sub(stackVector);
   }
-  render() { throw "Not implemented."; }
-  renderTimeline() { throw "Not implemented."; }
+  render(player) { throw "Not implemented."; }
 }
 
 class HitCircle extends HitObject {
   constructor(properties) {
     super(properties);
     this.fadetime = 0.8;
+  }
+  render(player) {
+    let ctx = player.ctx;
+    // before the circle's hit time:
+    //  - TODO: fade it in (possibly?)
+    //  - make sure circle is fully visible for the duration determined by AR
   }
   hrFlip() { this.position.y = 384 - this.position.y; }
 }
@@ -173,6 +178,9 @@ class Slider extends HitObject {
       break;
     }
   }
+  render(player) {
+    // f
+  }
   hrFlip() {
     // this.position.y = 384 - this.position.y;
     for (var i = 0; i < this.points.length; ++i) {
@@ -186,6 +194,9 @@ class Spinner extends HitObject {
   constructor(properties) {
     super(properties);
     this.fadetime = 0.25;
+  }
+  render(player) {
+    // f
   }
   hrFlip() {}
 }

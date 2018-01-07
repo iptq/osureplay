@@ -3,6 +3,7 @@ const fs = require("fs");
 const Color = require("../color");
 const HitObject = require("./hitObject"), Slider = HitObject.Slider;
 const TimingPoint = require("./timingPoint");
+const constants = require("../constants");
 const utils = require("../utils");
 
 const sectionPattern = /^\[([a-zA-Z0-9]+)\]$/,
@@ -19,18 +20,6 @@ class Beatmap {
     let result = await Beatmap.parseString(data.toString());
     console.log("Beatmap parsed.");
     return result;
-  }
-  newID() {
-    var id;
-    while (true) {
-      id = Util.randomString();
-      if (id in this.HitObjects)
-        continue;
-      if (id in this.TimingPoints)
-        continue;
-      break;
-    }
-    return id;
   }
   static async parseString(data) {
     var i, id;
@@ -117,6 +106,13 @@ class Beatmap {
       }
     }
 
+    beatmap.Diff = beatmap.AdjDiff = {
+      AR : beatmap.ApproachRate,
+      CS : beatmap.CircleSize,
+      HP : beatmap.HPDrainRate,
+      OD : beatmap.OverallDifficulty
+    };
+
     beatmap.TimingPoints = [];
     beatmap.HitObjects = [];
 
@@ -140,11 +136,10 @@ class Beatmap {
     beatmap.TimingPoints.sort(function(a, b) { return a.offset - b.offset; });
     let comboNumber = 0;
     let comboColor = 0;
-    let realRadius = 88 - 8 * (beatmap.CircleSize - 2);
     beatmap.maxCombo = 0;
     for (i = 0; i < sections.HitObjects.length; i += 1) {
       var hitObject = HitObject.parse(sections.HitObjects[i]);
-      hitObject.radius = realRadius;
+      hitObject.radius = beatmap.RealCS;
       hitObject.beatmap = beatmap;
       if (hitObject instanceof Slider) {
         hitObject.calculate();
@@ -189,6 +184,57 @@ class Beatmap {
       }
     }
     return beatmap;
+  }
+
+  newID() {
+    var id;
+    while (true) {
+      id = Util.randomString();
+      if (id in this.HitObjects)
+        continue;
+      if (id in this.TimingPoints)
+        continue;
+      break;
+    }
+    return id;
+  }
+
+  adjustForMods(mods) {
+    this.mods = mods;
+    if (mods.Easy) {
+      this.AdjDiff.AR = Math.max(0, this.Diff.AR / 2);
+      this.AdjDiff.CS = Math.max(0, this.Diff.CS / 2);
+      this.AdjDiff.HP = Math.max(0, this.Diff.HP / 2);
+      this.AdjDiff.OD = Math.max(0, this.Diff.OD / 2);
+    } else if (mods.HardRock) {
+      this.AdjDiff.AR = Math.min(10, this.Diff.AR * 1.4);
+      this.AdjDiff.CS = Math.min(10, this.Diff.CS * 1.3);
+      this.AdjDiff.HP = Math.min(10, this.Diff.HP * 1.4);
+      this.AdjDiff.OD = Math.min(10, this.Diff.OD * 1.4);
+    }
+    console.log(this.AdjDiff);
+  }
+
+  // something that osu uses to (kind of) linearly map a difficulty value to a
+  // range, whatever that range may be. the slope gets steeper for higher
+  // difficulty value at a cutoff of 5
+  mapDiffRange(diff, min, mid, max) {
+    if (diff > 5)
+      return mid + (max - mid) * (diff - 5) / 5;
+    if (diff < 5)
+      return mid - (mid - min) * (5 - diff) / 5;
+    return mid;
+  }
+
+  calculateDifficultyProperties() {
+    this.ReactionTime = this.mapDiffRange(this.AdjDiff.AR, 1800, 1200, 450);
+    this.Hit300 = this.mapDiffRange(this.AdjDiff.OD, 80, 50, 20);
+    this.Hit100 = this.mapDiffRange(this.AdjDiff.OD, 140, 100, 60);
+    this.Hit50 = this.mapDiffRange(this.AdjDiff.OD, 200, 150, 100);
+
+    let gameFieldWidth = constants.FULL_WIDTH * 512.0 / 640;
+    // this.RealCS = 88 - 8 * (this.AdjDiff.CS - 2); // ?
+    this.RealCS = gameFieldWidth / 8 * (1 - 0.7 * (this.AdjDiff.CS - 5) / 5);
   }
 
   getTimingPoint(offset) {

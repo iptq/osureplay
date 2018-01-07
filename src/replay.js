@@ -45,6 +45,28 @@ class Reader {
   }
 }
 
+// copied from the osu!api wiki
+// contains only the ones that apply to standard
+// fuck minigames lol
+const modmask = {
+  None : 0,
+  NoFail : 1,
+  Easy : 2,
+  NoVideo : 4,
+  Hidden : 8,
+  HardRock : 16,
+  SuddenDeath : 32,
+  DoubleTime : 64,
+  Relax : 128,
+  HalfTime : 256,
+  Nightcore : 512,
+  Flashlight : 1024,
+  Autoplay : 2048,
+  SpunOut : 4096,
+  Relax2 : 8192,
+  Perfect : 16384
+};
+
 class Replay {
   constructor() { this.cursorHistory = []; }
   async load(path) {
@@ -71,7 +93,15 @@ class Replay {
     this.score = reader.readInt();
     this.maxCombo = reader.readShort();
     this.fc = reader.readByte() == 1;
+
+    // mods
     this.mods = reader.readInt();
+    this.modmap = {};
+    for (var key in modmask)
+      if (this.mods & modmask[key])
+        this.modmap[key] = true;
+    console.log(this.modmap);
+
     if (reader.readByte()) {
       let lifeBarLength = reader.readULEB();
       this.lifeBar = reader.readString(lifeBarLength);

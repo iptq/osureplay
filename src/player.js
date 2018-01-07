@@ -9,6 +9,8 @@ class Player {
     this.canvas = canvas;
 
     this.ctx = canvas.getContext("2d");
+    this.objIndex =
+        0; // the first hitobject that hasn't faded completely out of existence
   }
   render(timestamp) {
     let ctx = this.ctx;
@@ -41,6 +43,14 @@ class Player {
     ctx.restore();
 
     // draw hit objects!
+    for (var i = this.objIndex; i < this.beatmap.HitObjects.length; ++i) {
+      let obj = this.beatmap.HitObjects[i];
+      obj.render(this);
+      if (obj.startTime < timestamp - this.beatmap.HitWindow)
+        this.objIndex = i;
+      else if (obj.startTime > timestamp + this.beatmap.HitWindow)
+        break;
+    }
 
     // draw cursor
     let cursor = this.replay.getCursorAt(timestamp);
