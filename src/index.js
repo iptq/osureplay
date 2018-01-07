@@ -85,6 +85,7 @@ let main = async function() {
   let beatmap = await Beatmap.parse(mapFile);
   beatmap.adjustForMods(replay.modmap);
   beatmap.calculateDifficultyProperties();
+  beatmap.updateStacking();
 
   beatmap.BackgroundImage = new Image();
   beatmap.BackgroundImage.src =

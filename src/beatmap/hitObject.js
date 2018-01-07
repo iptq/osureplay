@@ -130,11 +130,11 @@ class HitObject {
     }
     this.stackHeight = 0;
   }
-  realCoordinates() {
+  getRealCoordinates() {
     let stackOffset = this.radius / 10;
     let stackVector = new Vector(stackOffset, stackOffset);
-    stackVector.smul(stackHeight);
-    return this.position.o2r().sub(stackVector);
+    stackVector.smul(this.stackHeight);
+    return this.position.add(new Vector(64, 48)).o2r().sub(stackVector);
   }
   render(player) { throw "Not implemented."; }
 }
@@ -144,11 +144,45 @@ class HitCircle extends HitObject {
     super(properties);
     this.fadetime = 0.8;
   }
-  render(player) {
+  render(player, timestamp) {
     let ctx = player.ctx;
+    ctx.save();
+
+    let CS = player.beatmap.RealCS;
+    let position = this.getRealCoordinates();
+    ctx.translate(position.x, position.y);
+
+    let drawApproachCircle = () => {
+      let radius = CS * (2.5 * (this.startTime - timestamp) /
+                             player.beatmap.ReactionTime +
+                         1);
+      ctx.drawImage(player.skin.get("approachcircle", this.comboColor),
+                    -radius / 2, -radius / 2, radius, radius);
+    };
+    let drawHitCircle = () => {
+      ctx.drawImage(player.skin.get("hitcircle", this.comboColor), -CS / 2,
+                    -CS / 2, CS, CS);
+      ctx.drawImage(player.skin.get("hitcircleoverlay"), -CS / 2, -CS / 2, CS,
+                    CS);
+    };
+
     // before the circle's hit time:
     //  - TODO: fade it in (possibly?)
+    //  - draw approach circle
     //  - make sure circle is fully visible for the duration determined by AR
+    if (this.startTime - player.beatmap.ReactionTime <= timestamp &&
+        timestamp <= this.startTime) {
+      drawApproachCircle();
+      drawHitCircle();
+    }
+
+    // after the circle's hit time:
+    //  - TODO: fade it out (possibly?)
+    //  i guess it's supposed to be visible until after startTime + hit50?
+
+    // score indicator (miss/50/100/300)
+
+    ctx.restore();
   }
   hrFlip() { this.position.y = 384 - this.position.y; }
 }

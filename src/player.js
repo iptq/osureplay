@@ -45,10 +45,10 @@ class Player {
     // draw hit objects!
     for (var i = this.objIndex; i < this.beatmap.HitObjects.length; ++i) {
       let obj = this.beatmap.HitObjects[i];
-      obj.render(this);
-      if (obj.startTime < timestamp - this.beatmap.HitWindow)
+      obj.render(this, timestamp);
+      if (obj.startTime < timestamp - this.beatmap.Hit50)
         this.objIndex = i;
-      else if (obj.startTime > timestamp + this.beatmap.HitWindow)
+      else if (obj.startTime > timestamp + this.beatmap.Hit50)
         break;
     }
 

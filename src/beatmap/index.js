@@ -134,12 +134,12 @@ class Beatmap {
       beatmap.TimingPoints.push(timingPoint);
     }
     beatmap.TimingPoints.sort(function(a, b) { return a.offset - b.offset; });
+
     let comboNumber = 0;
     let comboColor = 0;
     beatmap.maxCombo = 0;
     for (i = 0; i < sections.HitObjects.length; i += 1) {
       var hitObject = HitObject.parse(sections.HitObjects[i]);
-      hitObject.radius = beatmap.RealCS;
       hitObject.beatmap = beatmap;
       if (hitObject instanceof Slider) {
         hitObject.calculate();
@@ -211,6 +211,8 @@ class Beatmap {
       this.AdjDiff.CS = Math.min(10, this.Diff.CS * 1.3);
       this.AdjDiff.HP = Math.min(10, this.Diff.HP * 1.4);
       this.AdjDiff.OD = Math.min(10, this.Diff.OD * 1.4);
+      for (let obj of this.HitObjects)
+        obj.hrFlip();
     }
     console.log(this.AdjDiff);
   }
@@ -235,7 +237,11 @@ class Beatmap {
     let gameFieldWidth = constants.FULL_WIDTH * 512.0 / 640;
     // this.RealCS = 88 - 8 * (this.AdjDiff.CS - 2); // ?
     this.RealCS = gameFieldWidth / 8 * (1 - 0.7 * (this.AdjDiff.CS - 5) / 5);
+    for (let obj of this.HitObjects)
+      obj.radius = this.RealCS;
   }
+
+  updateStacking() {}
 
   getTimingPoint(offset) {
     // perform binary search for the timing section to which this offset belongs
@@ -262,13 +268,11 @@ class Beatmap {
     for (var i = 0; i < this.HitObjects.length; i++) {
       var obj = this.HitObjects[i];
       if (obj instanceof Slider || obj instanceof Spinner) {
-        if (offset < obj.endTime) {
+        if (offset < obj.endTime)
           return i;
-        }
       } else {
-        if (offset <= obj.startTime) {
+        if (offset <= obj.startTime)
           return i;
-        }
       }
     }
     return i - 1;
