@@ -112,9 +112,11 @@ let main = async function() {
       player.render(msec);
 
       await utils.record(player.canvas, recorder);
-      let percent = Math.round((frame + 1) * 10000.00 / END) / 100.0;
-      let s1 = "\rProcessing " + percent + "%";
-      process.stdout.write(s1 + Array(40 - s1.length).join(" "));
+      if (frame % (END / 20) == 0) {
+        let percent = Math.round(frame * 10000.00 / END) / 100.0;
+        let s1 = "\rProcessing " + percent + "%";
+        process.stdout.write(s1 + Array(40 - s1.length).join(" "));
+      }
     } catch (e) {
       console.error(e);
     }

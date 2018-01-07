@@ -128,13 +128,13 @@ class HitObject {
     for (var key in properties) {
       this[key] = properties[key];
     }
-    this.selected = false;
+    this.stackHeight = 0;
   }
-  containsPoint(point, cs) {
-    let radius = 88 - 8 * (cs - 2);
-    let dx = point.x - this.position.x;
-    let dy = point.y - this.position.y;
-    return Math.pow(dx, 2) + Math.pow(dy, 2) <= Math.pow(radius, 2);
+  realCoordinates() {
+    let stackOffset = this.radius / 10;
+    let stackVector = new Vector(stackOffset, stackOffset);
+    stackVector.smul(stackHeight);
+    return this.position.o2r().sub(stackVector);
   }
   render() { throw "Not implemented."; }
   renderTimeline() { throw "Not implemented."; }

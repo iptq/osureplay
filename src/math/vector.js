@@ -1,3 +1,7 @@
+const constants = require("../constants");
+
+const xratio = constants.FULL_WIDTH / 640, yratio = constants.FULL_HEIGHT / 480;
+
 class Vector {
   constructor(_x, _y) {
     this.x = _x;
@@ -22,6 +26,10 @@ class Vector {
     var x = this.x * Math.cos(this.y);
     var y = this.x * Math.sin(this.y);
     return new Vector(x, y);
+  }
+  o2r() {
+    // osu!px to real coordinates
+    return new Vector(this.x * xratio, this.y * yratio);
   }
   get m() {
     // magnitude

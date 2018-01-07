@@ -140,9 +140,11 @@ class Beatmap {
     beatmap.TimingPoints.sort(function(a, b) { return a.offset - b.offset; });
     let comboNumber = 0;
     let comboColor = 0;
+    let realRadius = 88 - 8 * (beatmap.CircleSize - 2);
     beatmap.maxCombo = 0;
     for (i = 0; i < sections.HitObjects.length; i += 1) {
       var hitObject = HitObject.parse(sections.HitObjects[i]);
+      hitObject.radius = realRadius;
       hitObject.beatmap = beatmap;
       if (hitObject instanceof Slider) {
         hitObject.calculate();

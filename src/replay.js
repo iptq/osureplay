@@ -1,6 +1,8 @@
 const packer = require("pypacker");
 
+const constants = require("./constants");
 const utils = require("./utils");
+const Vector = require("./math/vector");
 
 class Reader {
   constructor(data) {
@@ -44,6 +46,7 @@ class Reader {
 }
 
 class Replay {
+  constructor() { this.cursorHistory = []; }
   async load(path) {
     let data = await utils.readFileAsync(path);
     let reader = new Reader(data);
@@ -78,21 +81,47 @@ class Replay {
     reader.readInt();
     let replayLength = reader.readInt();
     let rawMovementData = reader.data.slice(reader.offset);
+    // process cursor information
     var movementData = await utils.decompressLZMA(rawMovementData);
     if (!movementData) {
       process.stderr.write("Failed to parse movement data.\n");
       process.exit(1);
     }
-    this.movementData = movementData.split(",").map(function(line) {
+    let parsedMovementData = movementData.split(",").map(function(line) {
       let parts = line.split("|");
       return {
         dt : parseInt(parts[0]),
-        x : parseFloat(parts[1]),
-        y : parseFloat(parts[2]),
+        position : new Vector(parseFloat(parts[1]), parseFloat(parts[2])),
         keyBits : parseInt(parts[3])
       };
     });
+    this.cursorPositions = parsedMovementData.slice(0);
+    this.cursorPositions[0].time = this.cursorPositions[0].dt;
+    for (var i = 1; i < parsedMovementData.length; ++i) {
+      this.cursorPositions[i].time =
+          parsedMovementData[i - 1].time + parsedMovementData[i].dt;
+      this.cursorPositions[i].keys = {
+        M1 : ((parsedMovementData[i].keyBits & 1) == 1) &&
+                 ((parsedMovementData[i].keyBits & 5) != 5),
+        M2 : ((parsedMovementData[i].keyBits & 2) == 2) &&
+                 ((parsedMovementData[i].keyBits & 10) != 10),
+        K1 : (parsedMovementData[i].keyBits & 5) == 5,
+        K2 : (parsedMovementData[i].keyBits & 10) == 10
+      };
+    }
+    this.lastCursor = 0;
     console.log("Replay has been loaded.");
+  }
+  getCursorAt(timestamp) {
+    // assumes this function is being called sequentially
+    while (this.cursorPositions[this.lastCursor].time <= timestamp) {
+      this.lastCursor++;
+    }
+    let current = this.cursorPositions[this.lastCursor];
+    this.cursorHistory.push(current.position);
+    if (this.cursorHistory.length > constants.CURSOR_TRAIL_LENGTH)
+      this.cursorHistory.shift();
+    return current;
   }
 }
 
