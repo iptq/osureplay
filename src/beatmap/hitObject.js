@@ -279,15 +279,16 @@ class Slider extends HitObject {
       ctx.translate(-position.x, -position.y);
       ctx.drawImage(this.spline.border, 0, 0);
       ctx.globalCompositeOperation = "destination-out";
+      ctx.globalAlpha = 0.75;
       ctx.drawImage(this.spline.body, 0, 0);
       ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = 0.75;
       ctx.drawImage(
           utils.tint(`slider:${this.id}`, this.spline.body, this.comboColor), 0,
           0);
       ctx.drawImage(this.spline.overlay, 0, 0);
       ctx.restore();
     };
+    let drawSliderBall = () => {};
 
     // before the slider's hit time:
     //  - TODO: fade it in (possibly?)
@@ -307,6 +308,7 @@ class Slider extends HitObject {
     //  - remember the number of repeats i guess
     if (this.startTime <= timestamp && timestamp <= this.endTime) {
       drawSliderBody();
+      drawSliderBall();
     }
 
     // after the slider's body time:
@@ -318,9 +320,8 @@ class Slider extends HitObject {
   }
   hrFlip() {
     // this.position.y = 384 - this.position.y;
-    for (var i = 0; i < this.points.length; ++i) {
+    for (var i = 0; i < this.points.length; ++i)
       this.points[i].y = 384 - this.points[i].y;
-    }
     this.calculate();
   }
 }

@@ -142,6 +142,7 @@ class Beatmap {
     for (i = 0; i < sections.HitObjects.length; i += 1) {
       var hitObject = HitObject.parse(sections.HitObjects[i]);
       hitObject.beatmap = beatmap;
+      hitObject.id = beatmap.newID();
       if (i === 0 || hitObject.newCombo) { // or spinner or break apparently
         comboNumber = 1;
         comboColor = (comboColor + 1 + (hitObject instanceof HitObject.Spinner
@@ -181,13 +182,14 @@ class Beatmap {
             {startTime : parseInt(members[1]), endTime : parseInt(members[2])});
       }
     }
+
     return beatmap;
   }
 
   newID() {
     var id;
     while (true) {
-      id = Util.randomString();
+      id = utils.randomString();
       if (id in this.HitObjects)
         continue;
       if (id in this.TimingPoints)

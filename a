@@ -1,3 +1,16 @@
-quirks:
-- only supports 1 resolution: 1920 x 1080
-- only supports 1 skin: seouless skin
+todo:
+
+- bezier
+- sliders a bit more transparent
+- slider ticks and ball
+- follow points
+- copy scoring algorithm over for circles
+- scoring algorithm for sliders
+- ui stuff
+- colorhaxing
+- health bar
+
+- support more resolutions
+- support more skins: seouless skin
+
+- taiko?

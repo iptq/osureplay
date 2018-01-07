@@ -4,6 +4,7 @@ const path = require("path");
 
 const Canvas = require("canvas"), Image = Canvas.Image;
 const md5File = require("md5-file/promise");
+const mp3Duration = require("mp3-duration");
 
 const Beatmap = require("./beatmap");
 const Player = require("./player");
@@ -91,6 +92,11 @@ let main = async function() {
   beatmap.BackgroundImage.src =
       await utils.readFileAsync(path.join(mapFolder, beatmap.bgFilename));
 
+  this.mp3duration =
+      await mp3Duration(path.join(mapFolder, beatmap.AudioFilename));
+  console.log("Audio Length: " + mp3duration);
+  this.frameCount = Math.ceil(mp3duration * constants.FPS);
+
   // load skin
   let skin = new Skin();
   await skin.load();
@@ -109,14 +115,17 @@ let main = async function() {
   //
   // process frames
   //
-  let END = 800;
+  // let END = 400;
+  let END = this.frameCount;
+  console.log(`beginning rendering (${this.frameCount} frames)...`);
+  process.stdout.write("\rProcessing 0%");
   for (let frame = 0; frame < END; ++frame) {
     try {
       let msec = frame * 1000.0 / constants.FPS;
       player.render(msec);
 
       await utils.record(player.canvas, recorder);
-      if ((frame + 1) % (END / 100) == 0) {
+      if (true) { //(frame + 1) % (END / 100) == 0) {
         let percent = Math.round((frame + 1) * 10000.00 / END) / 100.0;
         let s1 = "\rProcessing " + percent + "%";
         process.stdout.write(s1 + Array(40 - s1.length).join(" "));

@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.0.0",
     "canvas": "^1.6.5",
     "lzma": "^2.3.2",
     "lzma-native": "^2.0.1",

@@ -39,6 +39,12 @@ class Spline {
 
   prerender() {
     const K = 2.5;
+    const randoconst = 2.9 / 3;
+    let cs = this.cs * randoconst;
+
+    // these are going to be full cuz i'm too lazy to calculate exactly how big
+    // sliders are right now. guess i'll leave this as a
+    // TODO: make slider pieces not retardedly sized
     this.image = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
     this.body = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
     this.border = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
@@ -48,6 +54,7 @@ class Spline {
         c3 = this.body.getContext("2d");
     var origin = this.points[0].add(new Vector(64, 48)).o2r();
 
+    c1.save();
     c1.translate(origin.x, origin.y);
     c2.translate(origin.x, origin.y);
     c3.translate(origin.x, origin.y);
@@ -71,30 +78,51 @@ class Spline {
 
     // get that gradient effect
     // thanks alex
-    for (let alpha = 0.0, i = 0; alpha < this.cs / K; ++i) {
-      c1.lineWidth = c2.lineWidth = this.cs - alpha * K;
+    for (let a = 0.0, i = 0; a < cs / K; ++i) {
+      // console.log(i, a);
+      c1.save();
+      c1.lineWidth = c2.lineWidth = c3.lineWidth = cs - a * K;
       if (i === 0) {
         c2.strokeStyle = "white";
-        alpha += this.cs / (10 * K);
+        a += cs / (10 * K);
         c2.stroke();
       } else {
-        c1.globalAlpha = alpha / this.cs * K / 8;
+        c1.globalAlpha = a / cs * K / 8;
         c1.strokeStyle = "white";
-        alpha += K;
+        a += K;
         c1.stroke();
         if (i === 1) {
+          c3.save();
+          c3.translate(-origin.x, -origin.y);
           c3.fillStyle = "white";
-          c3.fillRect(0, 0, this.body.width, this.body.height);
+          c3.fillRect(0, 0, constants.FULL_WIDTH, constants.FULL_HEIGHT);
           c3.globalCompositeOperation = "destination-in";
           c3.stroke();
+          c3.restore();
         }
-        c1.globalCompositeOperation = "source-over";
       }
+      c1.restore();
     }
+    c1.restore();
+    // intensify
+    c1.globalCompositeOperation = "copy";
+    c1.globalAlpha = 0.5;
+    c1.drawImage(this.overlay, 0, 0);
+
+    // let ctx = this.image.getContext("2d");
+    // ctx.save();
+    // ctx.drawImage(this.border, 0, 0);
+    // ctx.globalCompositeOperation = "destination-out";
+    // ctx.drawImage(this.body, 0, 0);
+    // ctx.globalCompositeOperation = "source-over";
+    // ctx.globalAlpha = 0.75;
+    // ctx.drawImage(this.body, 0, 0);
+    // ctx.drawImage(this.overlay, 0, 0);
+    // ctx.restore();
 
     // const fs = require("fs");
-    // fs.writeFileSync("lol.png", this.body.toBuffer());
-    // process.exit(0);
+    // fs.writeFileSync("lol.png", this.image.toBuffer());
+    // process.exit(1);
   }
 }
 
@@ -190,24 +218,6 @@ class PerfectSpline extends Spline {
       this.points.push(center.add(rel));
     }
     this.prerender();
-
-    let ctx = this.image.getContext("2d");
-    ctx.save();
-    ctx.fillStyle = "blue";
-    ctx.save();
-    let position = center.add(new Vector(64, 48)).o2r();
-    ctx.translate(position.x, position.y);
-    ctx.fillRect(-3, -3, 6, 6);
-    ctx.restore();
-    ctx.fillStyle = "red";
-    for (let point of points) {
-      ctx.save();
-      let position = point.add(new Vector(64, 48)).o2r();
-      ctx.translate(position.x, position.y);
-      ctx.fillRect(-3, -3, 6, 6);
-      ctx.restore();
-    }
-    ctx.restore();
   }
 }
 
