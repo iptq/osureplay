@@ -43,12 +43,12 @@ class Player {
     ctx.restore();
 
     // draw hit objects!
-    for (var i = this.objIndex; i < this.beatmap.HitObjects.length; ++i) {
+    for (var i = this.beatmap.HitObjects.length - 1; i >= this.objIndex; --i) {
       let obj = this.beatmap.HitObjects[i];
+      if (obj.startTime > timestamp + this.beatmap.ReactionTime)
+        continue;
       obj.render(this, timestamp);
       if (obj.startTime < timestamp - this.beatmap.Hit50)
-        this.objIndex = i;
-      else if (obj.startTime > timestamp + this.beatmap.Hit50)
         break;
     }
 

@@ -1,7 +1,8 @@
 const fs = require("fs");
 
 const Color = require("../color");
-const HitObject = require("./hitObject"), Slider = HitObject.Slider;
+const HitObject = require("./hitObject"), HitCircle = HitObject.HitCircle,
+      Slider = HitObject.Slider, Spinner = HitObject.Spinner;
 const TimingPoint = require("./timingPoint");
 const constants = require("../constants");
 const utils = require("../utils");
@@ -144,7 +145,7 @@ class Beatmap {
       if (hitObject instanceof Slider) {
         hitObject.calculate();
       }
-      if (i === 0 || hitObject.newCombo) {
+      if (i === 0 || hitObject.newCombo) { // or spinner or break apparently
         comboNumber = 1;
         comboColor = (comboColor + 1 + (hitObject instanceof HitObject.Spinner
                                             ? hitObject.customColor
@@ -156,7 +157,7 @@ class Beatmap {
           beatmap.maxCombo = comboNumber;
       }
       hitObject.comboNumber = comboNumber;
-      hitObject.comboColor = beatmap.ComboColors[comboColor];
+      hitObject.comboColor = beatmap.ComboColors[comboColor].clone();
       beatmap.HitObjects.push(hitObject);
     }
     beatmap.HitObjects.sort(function(a, b) {
@@ -217,10 +218,10 @@ class Beatmap {
     console.log(this.AdjDiff);
   }
 
-  // something that osu uses to (kind of) linearly map a difficulty value to a
-  // range, whatever that range may be. the slope gets steeper for higher
-  // difficulty value at a cutoff of 5
   mapDiffRange(diff, min, mid, max) {
+    // something that osu uses to (kind of) linearly map a difficulty value to a
+    // range, whatever that range may be. the slope gets steeper for higher
+    // difficulty value at a cutoff of 5
     if (diff > 5)
       return mid + (max - mid) * (diff - 5) / 5;
     if (diff < 5)
@@ -241,7 +242,109 @@ class Beatmap {
       obj.radius = this.RealCS;
   }
 
-  updateStacking() {}
+  updateStacking(start = 0, end = -1) {
+    // basically a direct port of the stacking algorithm
+
+    const STACK_LENIENCE = 3; // in osupx i assume
+    let nObj = this.HitObjects.length;
+    while (end < 0)
+      end += nObj;
+    let stackThreshold = this.ReactionTime * this.StackLeniency;
+    // console.log("stack leniency:", stackLeniency);
+
+    // reset stacking first
+    for (let i = end; i >= start; --i)
+      this.HitObjects[i].stackHeight = 0;
+
+    // just extend the end index in case it's not the base
+    let extEnd = end;
+    for (let i = end; i >= start; --i) {
+      let stackBase = i;
+      for (let n = stackBase + 1; n < nObj; ++n) {
+        // bottom of the stack
+        let stackBaseObj = this.HitObjects[stackBase];
+        if (stackBaseObj instanceof Spinner)
+          break;
+
+        // current object
+        let objN = this.HitObjects[n];
+        if (objN instanceof Spinner)
+          continue;
+
+        // check if out of range
+        if (objN.startTime - stackBaseObj.endTime > stackThreshold)
+          break;
+
+        if (stackBaseObj.position.distanceTo(objN.position) < STACK_LENIENCE ||
+            (stackBaseObj instanceof Slider &&
+             stackBaseObj.endPosition.distanceTo(objN.position) <
+                 STACK_LENIENCE)) {
+          stackBase = n;
+          this.HitObjects[n].stackHeight = 0;
+        }
+      }
+      if (stackBase > extEnd) {
+        extEnd = stackBase;
+        if (extEnd == nObj - 1)
+          break;
+      }
+    }
+
+    // actually build the stacks now :D
+    let extStart = start;
+    for (let i = extEnd; i > start; --i) {
+      let n = i;
+      if (this.HitObjects[i].stackHeight != 0 ||
+          this.HitObjects[i] instanceof Spinner)
+        continue;
+
+      let j = i;
+      if (this.HitObjects[i] instanceof HitCircle) {
+        while (--n >= 0) {
+          let objN = this.HitObjects[n];
+          if (objN instanceof Spinner)
+            continue;
+          if (this.HitObjects[j].startTime - objN.endTime > stackThreshold)
+            break;
+          if (n < extStart) {
+            this.HitObjects[n].stackHeight = 0;
+            extStart = n;
+          }
+          if (objN instanceof Slider &&
+              objN.endPosition.distanceTo(this.HitObjects[j].position) <
+                  STACK_LENIENCE) {
+            let offset = this.HitObjects[j].stackHeight - objN.stackHeight + 1;
+            for (let j = n + 1; j <= i; ++j) {
+              let objJ = this.HitObjects[j];
+              if (objN.endPosition.distanceTo(objJ.position) < STACK_LENIENCE)
+                objJ.stackHeight -= offset;
+            }
+            break;
+          }
+          if (objN.position.distanceTo(this.HitObjects[j].position) <
+              STACK_LENIENCE) {
+            this.HitObjects[n].stackHeight = this.HitObjects[j].stackHeight + 1;
+            // console.log("new stack height =", objN.stackHeight);
+            j = n;
+          }
+        }
+      } else if (this.HitObjects[i] instanceof Slider) {
+        while (--n >= start) {
+          let objN = this.HitObjects[n];
+          if (objN instanceof Spinner)
+            continue;
+          if (this.HitObjects[j].startTime - objN.endTime > stackThreshold)
+            break;
+          if (objN.endPosition.distanceTo(this.HitObjects[j].position) <
+              STACK_LENIENCE) {
+            this.HitObjects[n].stackHeight = this.HitObjects[j].stackHeight + 1;
+            // console.log("new stack height =", objN.stackHeight);
+            j = n;
+          }
+        }
+      }
+    }
+  }
 
   getTimingPoint(offset) {
     // perform binary search for the timing section to which this offset belongs

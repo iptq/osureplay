@@ -101,8 +101,9 @@ let main = async function() {
   let player = new Player(beatmap, skin, replay, canvas);
   // recorder
   let recorder = child_process.spawn("ffmpeg", [
-    "-y", "-f", "image2pipe", "-vcodec", "mjpeg", "-r", "60", "-i", "-",
-    "-vcodec", "h264", "-r", "60", path.join(folderName, "noaudio.mp4")
+    "-y", "-f", "image2pipe", "-vcodec", "mjpeg", "-r",
+    constants.FPS.toString(), "-i", "-", "-vcodec", "h264", "-r",
+    constants.FPS.toString(), path.join(folderName, "noaudio.mp4")
   ]);
 
   //
@@ -111,7 +112,7 @@ let main = async function() {
   let END = 600;
   for (let frame = 0; frame < END; ++frame) {
     try {
-      let msec = frame * 1000 / 60.0;
+      let msec = frame * 1000.0 / constants.FPS;
       player.render(msec);
 
       await utils.record(player.canvas, recorder);

@@ -20,6 +20,7 @@ class Color {
     this.blue = parseFloat(_blue);
   }
   hex() { return Color.hex(this.red, this.green, this.blue); }
+  clone() { return new Color(this.red, this.green, this.blue); }
 
   toArray() { return [ this.red, this.green, this.blue ]; }
   tint(image) {

@@ -55,10 +55,11 @@ class HitObject {
 
     properties.judged = false; // whether or not the object has produced points
     properties.originalLine = line;
-    properties.startTime = parseInt(parts[2]);
+    properties.startTime = properties.endTime = parseInt(parts[2]);
     properties.soundTypes = [];
     properties.newCombo = (objectType & 4) == 4;
-    properties.position = new Vector(parseInt(parts[0]), parseInt(parts[1]));
+    properties.position = properties.endPosition =
+        new Vector(parseInt(parts[0]), parseInt(parts[1]));
     properties.customColor = (objectType >>> 4) & 7;
 
     if ((soundType & 2) == 2)
@@ -131,10 +132,11 @@ class HitObject {
     this.stackHeight = 0;
   }
   getRealCoordinates() {
-    let stackOffset = this.radius / 10;
+    let stackOffset = this.radius / 20;
     let stackVector = new Vector(stackOffset, stackOffset);
-    stackVector.smul(this.stackHeight);
-    return this.position.add(new Vector(64, 48)).o2r().sub(stackVector);
+    return this.position.add(new Vector(64, 48))
+        .o2r()
+        .sub(stackVector.smul(this.stackHeight));
   }
   render(player) { throw "Not implemented."; }
 }
@@ -164,6 +166,24 @@ class HitCircle extends HitObject {
                     -CS / 2, CS, CS);
       ctx.drawImage(player.skin.get("hitcircleoverlay"), -CS / 2, -CS / 2, CS,
                     CS);
+
+      let fixedNumberHeight = CS * 0.3; // totally arbitrary
+      let fullNumberWidth = 0;
+      let number = this.comboNumber.toString();
+      let numberData = [];
+      for (var i = 0; i < number.length; ++i) {
+        let image = player.skin.get("default-" + number.charAt(i));
+        let width = image.width * fixedNumberHeight / image.height;
+        fullNumberWidth += width;
+        numberData.push([ image, width ]);
+      }
+      let x = -fullNumberWidth / 2;
+      for (var i = 0; i < numberData.length; ++i) {
+        let [image, width] = numberData[i];
+        ctx.drawImage(image, x, -fixedNumberHeight / 2, width,
+                      fixedNumberHeight);
+        x += width;
+      }
     };
 
     // before the circle's hit time:
@@ -211,6 +231,8 @@ class Slider extends HitObject {
       this.spline = Spline.perfect(this.points, this.pixelLength);
       break;
     }
+    // last point is the end position
+    this.endPosition = this.spline.points[this.spline.points.length - 1];
   }
   render(player) {
     // f

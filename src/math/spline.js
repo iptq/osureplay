@@ -23,7 +23,7 @@ class Spline {
 
     // if they're on a line, abort mission now
     if (SliderMath.isLine(points[0], points[1], points[2]))
-      return linear(points, length);
+      return Spline.linear([ points[0], points[1] ], length);
 
     return new PerfectSpline(points, length);
   }
@@ -61,6 +61,8 @@ class BezierApproximator {
         continue;
       }
     }
+    // TODO
+    return this.points;
   }
 }
 
