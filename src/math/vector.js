@@ -7,6 +7,9 @@ class Vector {
     this.x = _x;
     this.y = _y;
   }
+  // alternates for dimension
+  get w() { return this.x; }
+  get h() { return this.y; }
   angleTo(other) {
     var dx = other.x - this.x;
     var dy = other.y - this.y;

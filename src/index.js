@@ -109,7 +109,7 @@ let main = async function() {
   //
   // process frames
   //
-  let END = 600;
+  let END = 800;
   for (let frame = 0; frame < END; ++frame) {
     try {
       let msec = frame * 1000.0 / constants.FPS;

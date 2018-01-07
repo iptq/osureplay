@@ -2,6 +2,7 @@ const Vector = require("../math/vector");
 const SliderMath = require("../math/slider");
 const Spline = require("../math/spline");
 const constants = require("../constants");
+const utils = require("../utils");
 
 var curveTypes = {
   "C" : "catmull",
@@ -192,8 +193,8 @@ class HitCircle extends HitObject {
     //  - make sure circle is fully visible for the duration determined by AR
     if (this.startTime - player.beatmap.ReactionTime <= timestamp &&
         timestamp <= this.startTime) {
-      drawApproachCircle();
       drawHitCircle();
+      drawApproachCircle();
     }
 
     // after the circle's hit time:
@@ -222,20 +223,98 @@ class Slider extends HitObject {
     }
     switch (this.curveType) {
     case "linear":
-      this.spline = Spline.linear(this.points, this.pixelLength);
+      this.spline = Spline.linear(this.radius, this.points, this.pixelLength);
       break;
     case "bezier":
-      this.spline = Spline.bezier(this.points, this.pixelLength);
+      this.spline = Spline.bezier(this.radius, this.points, this.pixelLength);
       break;
     case "perfect":
-      this.spline = Spline.perfect(this.points, this.pixelLength);
+      this.spline = Spline.perfect(this.radius, this.points, this.pixelLength);
       break;
     }
     // last point is the end position
     this.endPosition = this.spline.points[this.spline.points.length - 1];
   }
-  render(player) {
-    // f
+  render(player, timestamp) {
+    let ctx = player.ctx;
+    ctx.save();
+
+    let CS = player.beatmap.RealCS;
+    let position = this.getRealCoordinates();
+    ctx.translate(position.x, position.y);
+
+    let drawApproachCircle = () => {
+      let radius = CS * (2.5 * (this.startTime - timestamp) /
+                             player.beatmap.ReactionTime +
+                         1);
+      ctx.drawImage(player.skin.get("approachcircle", {tint : this.comboColor}),
+                    -radius / 2, -radius / 2, radius, radius);
+    };
+    let drawHitCircle = () => {
+      ctx.drawImage(player.skin.get("hitcircle", {tint : this.comboColor}),
+                    -CS / 2, -CS / 2, CS, CS);
+      ctx.drawImage(player.skin.get("hitcircleoverlay"), -CS / 2, -CS / 2, CS,
+                    CS);
+
+      let fixedNumberHeight = CS * 0.3; // totally arbitrary
+      let fullNumberWidth = 0;
+      let number = this.comboNumber.toString();
+      let numberData = [];
+      for (var i = 0; i < number.length; ++i) {
+        let image = player.skin.get("default-" + number.charAt(i));
+        let width = image.width * fixedNumberHeight / image.height;
+        fullNumberWidth += width;
+        numberData.push([ image, width ]);
+      }
+      let x = -fullNumberWidth / 2;
+      for (var i = 0; i < numberData.length; ++i) {
+        let [image, width] = numberData[i];
+        ctx.drawImage(image, x, -fixedNumberHeight / 2, width,
+                      fixedNumberHeight);
+        x += width;
+      }
+    };
+    let drawSliderBody = () => {
+      ctx.save();
+      ctx.translate(-position.x, -position.y);
+      ctx.drawImage(this.spline.border, 0, 0);
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.drawImage(this.spline.body, 0, 0);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 0.75;
+      ctx.drawImage(
+          utils.tint(`slider:${this.id}`, this.spline.body, this.comboColor), 0,
+          0);
+      ctx.drawImage(this.spline.overlay, 0, 0);
+      ctx.restore();
+    };
+
+    // before the slider's hit time:
+    //  - TODO: fade it in (possibly?)
+    //  - draw approach circle
+    //  - make sure circle is fully visible for the duration determined by AR
+    //  - draw slider body
+    if (this.startTime - player.beatmap.ReactionTime <= timestamp &&
+        timestamp <= this.startTime) {
+      drawSliderBody();
+      drawHitCircle();
+      drawApproachCircle();
+    }
+
+    // during the slider's body
+    //  - draw the ball (DIRECTION!)
+    //  - draw the follow circle (later lol)
+    //  - remember the number of repeats i guess
+    if (this.startTime <= timestamp && timestamp <= this.endTime) {
+      drawSliderBody();
+    }
+
+    // after the slider's body time:
+    //  - TODO: fade it out (possibly?)
+
+    // score indicator (miss/50/100/300)
+
+    ctx.restore();
   }
   hrFlip() {
     // this.position.y = 384 - this.position.y;
@@ -251,7 +330,7 @@ class Spinner extends HitObject {
     super(properties);
     this.fadetime = 0.25;
   }
-  render(player) {
+  render(player, timestamp) {
     // f
   }
   hrFlip() {}

@@ -142,9 +142,6 @@ class Beatmap {
     for (i = 0; i < sections.HitObjects.length; i += 1) {
       var hitObject = HitObject.parse(sections.HitObjects[i]);
       hitObject.beatmap = beatmap;
-      if (hitObject instanceof Slider) {
-        hitObject.calculate();
-      }
       if (i === 0 || hitObject.newCombo) { // or spinner or break apparently
         comboNumber = 1;
         comboColor = (comboColor + 1 + (hitObject instanceof HitObject.Spinner
@@ -238,8 +235,11 @@ class Beatmap {
     let gameFieldWidth = constants.FULL_WIDTH * 512.0 / 640;
     // this.RealCS = 88 - 8 * (this.AdjDiff.CS - 2); // ?
     this.RealCS = gameFieldWidth / 8 * (1 - 0.7 * (this.AdjDiff.CS - 5) / 5);
-    for (let obj of this.HitObjects)
+    for (let obj of this.HitObjects) {
       obj.radius = this.RealCS;
+      if (obj instanceof Slider)
+        obj.calculate();
+    }
   }
 
   updateStacking(start = 0, end = -1) {
