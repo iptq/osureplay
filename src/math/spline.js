@@ -29,6 +29,8 @@ class Spline {
   }
 
   push(point) { this.points.push(point); }
+
+  render() {}
 }
 
 // thank based peppy
@@ -71,6 +73,7 @@ class BezierSpline extends Spline {
     super();
     let bezier = new BezierApproximator(points);
     this.points = bezier.calculate();
+    this.render();
   }
 }
 
@@ -87,6 +90,7 @@ class LinearSpline extends Spline {
     // v1 = p0 + ((p1 - p0) * length / |p1 - p0|)
     let unit = points[1].sub(points[0]).norm();
     this.points.push(points[0].add(unit.smul(length)));
+    this.render();
   }
 }
 
@@ -121,6 +125,7 @@ class PerfectSpline extends Spline {
       let rel = new Vector(Math.cos(t) * radius, Math.sin(t) * radius);
       this.points.push(center.add(rel));
     }
+    this.render();
   }
 }
 

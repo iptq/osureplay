@@ -1,7 +1,7 @@
 const fs = require("fs");
 
+const Canvas = require("canvas"), Image = Canvas.Image;
 const lzma = require("lzma");
-
 const unzip = require("unzip");
 
 let decompressLZMA = async function(data) {
@@ -53,8 +53,35 @@ let record = function(canvas, recorder) {
   });
 };
 
+// key required for caching btw
+let tintCache = {};
+let tint = function(keyPrefix, image, color) {
+  let key = `${keyPrefix}:${color.red},${color.green},${color.blue}`;
+  if (!(key in tintCache)) {
+    var canvas = new Canvas();
+    canvas.height = image.height;
+    canvas.width = image.width;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(image, 0, 0);
+    var w = image.width, h = image.height;
+    if (!w || !h)
+      return image;
+    var imgdata = ctx.getImageData(0, 0, w, h);
+    var rgba = imgdata.data;
+    for (var px = 0, ct = w * h * 4; px < ct; px += 4) {
+      rgba[px] *= color.red / 255;
+      rgba[px + 1] *= color.green / 255;
+      rgba[px + 2] *= color.blue / 255;
+    }
+    ctx.putImageData(imgdata, 0, 0);
+    tintCache[key] = canvas;
+  }
+  return tintCache[key];
+};
+
 module.exports.decompressLZMA = decompressLZMA;
 module.exports.extract = extract;
 module.exports.randomString = randomString;
 module.exports.readFileAsync = readFileAsync;
 module.exports.record = record;
+module.exports.tint = tint;

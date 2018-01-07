@@ -158,12 +158,12 @@ class HitCircle extends HitObject {
       let radius = CS * (2.5 * (this.startTime - timestamp) /
                              player.beatmap.ReactionTime +
                          1);
-      ctx.drawImage(player.skin.get("approachcircle", this.comboColor),
+      ctx.drawImage(player.skin.get("approachcircle", {tint : this.comboColor}),
                     -radius / 2, -radius / 2, radius, radius);
     };
     let drawHitCircle = () => {
-      ctx.drawImage(player.skin.get("hitcircle", this.comboColor), -CS / 2,
-                    -CS / 2, CS, CS);
+      ctx.drawImage(player.skin.get("hitcircle", {tint : this.comboColor}),
+                    -CS / 2, -CS / 2, CS, CS);
       ctx.drawImage(player.skin.get("hitcircleoverlay"), -CS / 2, -CS / 2, CS,
                     CS);
 
