@@ -83,46 +83,35 @@ class Spline {
       c1.save();
       c1.lineWidth = c2.lineWidth = c3.lineWidth = cs - a * K;
       if (i === 0) {
-        c2.strokeStyle = "white";
+        c2.strokeStyle = "rgba(255, 255, 255, 0.75)";
         a += cs / (10 * K);
         c2.stroke();
       } else {
-        c1.globalAlpha = a / cs * K / 8;
-        c1.strokeStyle = "white";
+        c1.globalAlpha = a / cs * K / 4;
+        // console.log(c1.globalAlpha);
+        c1.strokeStyle = "rgba(255, 255, 255, 0.5)"; // middle color
         a += K;
         c1.stroke();
         if (i === 1) {
           c3.save();
           c3.translate(-origin.x, -origin.y);
-          c3.fillStyle = "white";
+          c3.fillStyle = "rgba(0, 0, 0, 0.75)";
           c3.fillRect(0, 0, constants.FULL_WIDTH, constants.FULL_HEIGHT);
           c3.globalCompositeOperation = "destination-in";
           c3.stroke();
           c3.restore();
+
+          c2.globalCompositeOperation = "destination-out";
+          c2.drawImage(this.body, 0, 0);
         }
       }
       c1.restore();
     }
     c1.restore();
-    // intensify
+
     c1.globalCompositeOperation = "copy";
-    c1.globalAlpha = 0.5;
-    c1.drawImage(this.overlay, 0, 0);
-
-    // let ctx = this.image.getContext("2d");
-    // ctx.save();
-    // ctx.drawImage(this.border, 0, 0);
-    // ctx.globalCompositeOperation = "destination-out";
-    // ctx.drawImage(this.body, 0, 0);
-    // ctx.globalCompositeOperation = "source-over";
-    // ctx.globalAlpha = 0.75;
-    // ctx.drawImage(this.body, 0, 0);
-    // ctx.drawImage(this.overlay, 0, 0);
-    // ctx.restore();
-
-    // const fs = require("fs");
-    // fs.writeFileSync("lol.png", this.image.toBuffer());
-    // process.exit(1);
+    c1.globalAlpha = 0.25;
+    // c1.drawImage(this.overlay, 0, 0);
   }
 }
 

@@ -9,8 +9,7 @@ module.exports = {
   CURSOR_SIZE : 40,
   CURSOR_TRAIL_LENGTH : 12,
 
-  ratio : 744 / 384.0,
-  judgmentTime : 500,
+  CIRCLE_FADE_OUT_TIME : 268,
 
   bezierTolerance : 0.25
 };

@@ -1,3 +1,5 @@
+const Canvas = require("canvas");
+
 const Vector = require("../math/vector");
 const SliderMath = require("../math/slider");
 const Spline = require("../math/spline");
@@ -162,13 +164,16 @@ class HitCircle extends HitObject {
       ctx.drawImage(player.skin.get("approachcircle", {tint : this.comboColor}),
                     -radius / 2, -radius / 2, radius, radius);
     };
-    let drawHitCircle = () => {
+    let drawHitCircle = (fadeOutPercent = 0) => {
+      ctx.save();
+      let cs = CS * (1 + 0.5 * fadeOutPercent);
+      ctx.globalAlpha = 1 - fadeOutPercent;
       ctx.drawImage(player.skin.get("hitcircle", {tint : this.comboColor}),
-                    -CS / 2, -CS / 2, CS, CS);
-      ctx.drawImage(player.skin.get("hitcircleoverlay"), -CS / 2, -CS / 2, CS,
-                    CS);
+                    -cs / 2, -cs / 2, cs, cs);
+      ctx.drawImage(player.skin.get("hitcircleoverlay"), -cs / 2, -cs / 2, cs,
+                    cs);
 
-      let fixedNumberHeight = CS * 0.3; // totally arbitrary
+      let fixedNumberHeight = cs * 0.3; // totally arbitrary
       let fullNumberWidth = 0;
       let number = this.comboNumber.toString();
       let numberData = [];
@@ -185,6 +190,7 @@ class HitCircle extends HitObject {
                       fixedNumberHeight);
         x += width;
       }
+      ctx.restore();
     };
 
     // before the circle's hit time:
@@ -200,6 +206,11 @@ class HitCircle extends HitObject {
     // after the circle's hit time:
     //  - TODO: fade it out (possibly?)
     //  i guess it's supposed to be visible until after startTime + hit50?
+    if (this.endTime <= timestamp &&
+        timestamp <= this.endTime + constants.CIRCLE_FADE_OUT_TIME) {
+      drawHitCircle((timestamp - this.endTime) /
+                    constants.CIRCLE_FADE_OUT_TIME);
+    }
 
     // score indicator (miss/50/100/300)
 
@@ -250,13 +261,16 @@ class Slider extends HitObject {
       ctx.drawImage(player.skin.get("approachcircle", {tint : this.comboColor}),
                     -radius / 2, -radius / 2, radius, radius);
     };
-    let drawHitCircle = () => {
+    let drawHitCircle = (fadeOutPercent = 0) => {
+      ctx.save();
+      let cs = CS * (1 + 0.5 * fadeOutPercent);
+      ctx.globalAlpha = 1 - fadeOutPercent;
       ctx.drawImage(player.skin.get("hitcircle", {tint : this.comboColor}),
-                    -CS / 2, -CS / 2, CS, CS);
-      ctx.drawImage(player.skin.get("hitcircleoverlay"), -CS / 2, -CS / 2, CS,
-                    CS);
+                    -cs / 2, -cs / 2, cs, cs);
+      ctx.drawImage(player.skin.get("hitcircleoverlay"), -cs / 2, -cs / 2, cs,
+                    cs);
 
-      let fixedNumberHeight = CS * 0.3; // totally arbitrary
+      let fixedNumberHeight = cs * 0.3; // totally arbitrary
       let fullNumberWidth = 0;
       let number = this.comboNumber.toString();
       let numberData = [];
@@ -273,19 +287,24 @@ class Slider extends HitObject {
                       fixedNumberHeight);
         x += width;
       }
+      ctx.restore();
     };
     let drawSliderBody = () => {
       ctx.save();
       ctx.translate(-position.x, -position.y);
       ctx.drawImage(this.spline.border, 0, 0);
       ctx.globalCompositeOperation = "destination-out";
-      ctx.globalAlpha = 0.75;
-      ctx.drawImage(this.spline.body, 0, 0);
-      ctx.globalCompositeOperation = "source-over";
-      ctx.drawImage(
+      ctx.globalAlpha = 1;
+
+      let tmp = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
+      let c1 = tmp.getContext("2d");
+      c1.globalAlpha = 0.9;
+      c1.drawImage(
           utils.tint(`slider:${this.id}`, this.spline.body, this.comboColor), 0,
           0);
-      ctx.drawImage(this.spline.overlay, 0, 0);
+      c1.drawImage(this.spline.overlay, 0, 0);
+
+      ctx.drawImage(tmp, 0, 0);
       ctx.restore();
     };
     let drawSliderBall = () => {};
@@ -309,6 +328,12 @@ class Slider extends HitObject {
     if (this.startTime <= timestamp && timestamp <= this.endTime) {
       drawSliderBody();
       drawSliderBall();
+    }
+
+    if (this.startTime <= timestamp &&
+        timestamp <= this.startTime + constants.CIRCLE_FADE_OUT_TIME) {
+      drawHitCircle((timestamp - this.startTime) /
+                    constants.CIRCLE_FADE_OUT_TIME);
     }
 
     // after the slider's body time:
