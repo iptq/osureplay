@@ -115,8 +115,8 @@ let main = async function() {
   //
   // process frames
   //
-  let END = 300;
-  // let END = this.frameCount;
+  // let END = 300;
+  let END = this.frameCount;
   console.log(`beginning rendering (${this.frameCount} frames)...`);
   process.stdout.write("\rProcessing 0%");
   for (let frame = 0; frame < END; ++frame) {
