@@ -146,9 +146,7 @@ class Beatmap {
       if (i === 0 || hitObject.newCombo) { // or spinner or break apparently
         comboNumber = 1;
         comboColor = (comboColor + 1 + (hitObject instanceof HitObject.Spinner
-          ? hitObject.customColor
-          : 0)) %
-                     beatmap.ComboColors.length;
+          ? hitObject.customColor : 0)) % beatmap.ComboColors.length;
       } else {
         comboNumber += 1;
         if (comboNumber > beatmap.maxCombo)

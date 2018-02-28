@@ -13,21 +13,21 @@
         "sourceType": "module"
     },
     "rules": {
+        "comma-spacing": "warn",
+        "constructor-super": "warn",
+        "eol-last": "warn",
+        "indent": [ "warn", 2 ],
+        "keyword-spacing": "warn",
         "no-const-assign": "warn",
         "no-this-before-super": "warn",
+        "no-trailing-spaces": "warn",
         "no-undef": "warn",
         "no-unreachable": "warn",
-        "no-unused-vars": [
-            "warn",
-            {
-                "argsIgnorePattern": "^_"
-            }
-        ],
-        "constructor-super": "warn",
-        "valid-typeof": "warn",
-        "indent": [
-            "warn",
-            2
-        ]
+        "no-unused-vars": [ "warn", { "argsIgnorePattern": "^_" } ],
+        "no-whitespace-before-property": "warn",
+        "semi-spacing": ["warn", {"before": false, "after": true}],
+        "space-in-parens": ["error", "never"],
+        "space-infix-ops": "warn",
+        "valid-typeof": "warn"
     }
 }

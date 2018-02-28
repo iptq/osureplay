@@ -12,6 +12,8 @@ class Spline {
   }
 
   static bezier(cs, points, length) {
+    if (points.length == 2)
+      return Spline.linear(cs, points, length);
     return new BezierSpline(cs, points, length);
   }
   static linear(cs, points, length) {
@@ -120,8 +122,8 @@ class BezierApproximator {
   // using the repeated subdividing method
   constructor(points) {
     this.points = points;
-    this.leftDiv = [];
-    this.rightDiv = [];
+    this.subdivBuf1 = [];
+    this.subdivBuf2 = [];
   }
 
   static isFlatEnough(curve) {
@@ -133,28 +135,89 @@ class BezierApproximator {
     return true;
   }
 
+  subdivide(points, left, right) {
+    var midpoints = this.subdivBuf1;
+    for (var i = 0; i < this.points.length; ++i)
+      midpoints[i] = points[i];
+    for (var i = 0; i < this.points.length; ++i) {
+      left[i] = midpoints[0];
+      right[this.points.length - i - 1] = midpoints[this.points.length - i - 1];
+      for (var j = 0; j < this.points.length - i - 1; ++j)
+        midpoints[j] = midpoints[j].add(midpoints[j + 1]).smul(0.5);
+    }
+  }
+
+  approximate(points, output) {
+    let left = this.subdivBuf2;
+    let right = this.subdivBuf1;
+    this.subdivide(points, left, right);
+
+    // add right to left
+    for (var i = 0; i < this.points.length - 1; ++i)
+      left[this.points.length + i] = right[i + 1];
+    output.push(points[0]);
+    for (var i = 1; i < this.points.length - 1; ++i){
+      let index = 2 * i;
+      let p = left[index - 1].add(left[index].smul(2)).add(left[index + 1]).smul(0.25);
+      output.push(p);
+    }
+  }
+
   calculate() {
+    let output = [];
     // curves that haven't been flattened out yet
     let toFlatten = [ this.points.slice(0) ];
+    let freeBuffers = [ ];
+    let leftChild = this.subdivBuf2;
 
     while (toFlatten.length > 0) {
       // get the next potentially unflattened curve
       let parent = toFlatten.pop();
       // don't flatten it if it's already flattened
       if (BezierApproximator.isFlatEnough(parent)) {
+        this.approximate(parent, output);
+        freeBuffers.push(parent);
         continue;
       }
+
+      let rightChild = freeBuffers.length > 0 ? freeBuffers.pop() : Array(this.points.length);
+      this.subdivide(parent, leftChild, rightChild);
+      for (var i = 0; i < this.points.length; ++i)
+        parent[i] = leftChild[i];
+      toFlatten.push(rightChild);
+      toFlatten.push(parent);
     }
-    // TODO
-    return this.points;
+    output.push(this.points[this.points.length - 1]);
+    return output;
   }
 }
 
 class BezierSpline extends Spline {
   constructor(cs, points, _length) {
     super(cs);
-    let bezier = new BezierApproximator(points);
-    this.points = bezier.calculate();
+    this.control = points;
+    let lastIndex = 0;
+    for (var i = 0; i < points.length; ++i){
+      // split on red anchors
+      let multipart = i < points.length - 2 && points[i].equals(points[i + 1]);
+      if (multipart || i == points.length - 1) { // end of curve segment
+        let segment = points.slice(lastIndex, i + 1);
+        if (segment.length == 2) {
+          // linear
+          this.points.push(points[lastIndex]);
+          this.points.push(points[i]);
+        } else {
+          let bezier = new BezierApproximator(segment);
+          let points = bezier.calculate();
+          for (var j = 0; j < points.length; ++j)
+            this.points.push(points[j]);
+        }
+        if (multipart) i++;
+        lastIndex = i;
+      }
+    }
+    // console.log("CONTROL:", this.control);
+    // console.log("OUTPUT:", this.points);
     this.prerender();
   }
 }
@@ -162,6 +225,8 @@ class BezierSpline extends Spline {
 class LinearSpline extends Spline {
   constructor(cs, points, length) {
     super(cs);
+    this.control = points;
+
     // since we can just draw a single line from one point to another we don't
     // need a million points
 
@@ -179,6 +244,8 @@ class LinearSpline extends Spline {
 class PerfectSpline extends Spline {
   constructor(cs, points, length) {
     super(cs);
+    this.control = points;
+
     // get circumcircle
     let [center, radius] =
         SliderMath.getCircumCircle(points[0], points[1], points[2]);
