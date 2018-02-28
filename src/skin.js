@@ -65,14 +65,14 @@ class Skin {
   async parseINI() {
     let content =
         await utils.readFileAsync(path.join(this.dir, "skin.ini"));
-    var skin = {};
-    var keyValReg = /^([a-zA-Z0-9]+)[ ]*:[ ]*(.+)$/;
+    let skin = {};
+    let keyValReg = /^([a-zA-Z0-9]+)[ ]*:[ ]*(.+)$/;
     content.toString().split(/[\n\r]+/).forEach(function(line) {
       line = line.toString().trim();
       if (!line) {
         return;
       }
-      var match = keyValReg.exec(line);
+      let match = keyValReg.exec(line);
       if (match) {
         skin[match[1]] = match[2];
       }

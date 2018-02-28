@@ -54,7 +54,7 @@ class Spline {
 
     let gradientCtx = this.gradient.getContext("2d"), c2 = this.border.getContext("2d"),
       c3 = this.body.getContext("2d");
-    var origin = this.points[0].add(new Vector(64, 48)).o2r();
+    let origin = this.points[0].add(new Vector(64, 48)).o2r();
 
     gradientCtx.save();
     gradientCtx.translate(origin.x, origin.y);
@@ -127,7 +127,7 @@ class BezierApproximator {
   }
 
   static isFlatEnough(curve) {
-    for (var i = 1; i < curve.length - 1; ++i) {
+    for (let i = 1; i < curve.length - 1; ++i) {
       if ((curve[i - 1].sub(curve[i].smul(2)).add(curve[i + 1])).m2 >
           constants.bezierTolerance)
         return false;
@@ -136,13 +136,13 @@ class BezierApproximator {
   }
 
   subdivide(points, left, right) {
-    var midpoints = this.subdivBuf1;
-    for (var i = 0; i < this.points.length; ++i)
+    let midpoints = this.subdivBuf1;
+    for (let i = 0; i < this.points.length; ++i)
       midpoints[i] = points[i];
-    for (var i = 0; i < this.points.length; ++i) {
+    for (let i = 0; i < this.points.length; ++i) {
       left[i] = midpoints[0];
       right[this.points.length - i - 1] = midpoints[this.points.length - i - 1];
-      for (var j = 0; j < this.points.length - i - 1; ++j)
+      for (let j = 0; j < this.points.length - i - 1; ++j)
         midpoints[j] = midpoints[j].add(midpoints[j + 1]).smul(0.5);
     }
   }
@@ -153,10 +153,10 @@ class BezierApproximator {
     this.subdivide(points, left, right);
 
     // add right to left
-    for (var i = 0; i < this.points.length - 1; ++i)
+    for (let i = 0; i < this.points.length - 1; ++i)
       left[this.points.length + i] = right[i + 1];
     output.push(points[0]);
-    for (var i = 1; i < this.points.length - 1; ++i) {
+    for (let i = 1; i < this.points.length - 1; ++i) {
       let index = 2 * i;
       let p = left[index - 1].add(left[index].smul(2)).add(left[index + 1]).smul(0.25);
       output.push(p);
@@ -182,7 +182,7 @@ class BezierApproximator {
 
       let rightChild = freeBuffers.length > 0 ? freeBuffers.pop() : Array(this.points.length);
       this.subdivide(parent, leftChild, rightChild);
-      for (var i = 0; i < this.points.length; ++i)
+      for (let i = 0; i < this.points.length; ++i)
         parent[i] = leftChild[i];
       toFlatten.push(rightChild);
       toFlatten.push(parent);
@@ -197,7 +197,7 @@ class BezierSpline extends Spline {
     super(cs);
     this.control = points;
     let lastIndex = 0;
-    for (var i = 0; i < points.length; ++i) {
+    for (let i = 0; i < points.length; ++i) {
       // split on red anchors
       let multipart = i < points.length - 2 && points[i].equals(points[i + 1]);
       if (multipart || i == points.length - 1) { // end of curve segment
@@ -209,7 +209,7 @@ class BezierSpline extends Spline {
         } else {
           let bezier = new BezierApproximator(segment);
           let points = bezier.calculate();
-          for (var j = 0; j < points.length; ++j)
+          for (let j = 0; j < points.length; ++j)
             this.points.push(points[j]);
         }
         if (multipart) i++;
@@ -269,7 +269,7 @@ class PerfectSpline extends Spline {
     let nt1 = t0 + direction * (length / radius);
 
     // construct the circle parametrically
-    for (var t = t0; nt1 >= t0 ? t < nt1 : t > nt1; t += (nt1 - t0) / length) {
+    for (let t = t0; nt1 >= t0 ? t < nt1 : t > nt1; t += (nt1 - t0) / length) {
       let rel = new Vector(Math.cos(t) * radius, -Math.sin(t) * radius);
       this.points.push(center.add(rel));
     }

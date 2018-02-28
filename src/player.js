@@ -43,7 +43,7 @@ class Player {
     ctx.restore();
 
     // draw hit objects!
-    for (var i = this.beatmap.HitObjects.length - 1; i >= this.objIndex;
+    for (let i = this.beatmap.HitObjects.length - 1; i >= this.objIndex;
       --i) {
       let obj = this.beatmap.HitObjects[i];
       if (obj.startTime > timestamp + this.beatmap.ReactionTime)
@@ -55,7 +55,7 @@ class Player {
 
     // draw cursor
     let cursor = this.replay.getCursorAt(timestamp);
-    for (var i = 0; i < this.replay.cursorHistory.length; ++i) {
+    for (let i = 0; i < this.replay.cursorHistory.length; ++i) {
       ctx.save();
       ctx.globalAlpha = i / this.replay.cursorHistory.length;
 

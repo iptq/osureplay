@@ -140,7 +140,7 @@ let main = async function() {
   recorder.on("close", function() {
     utils.gc();
     // mix audio
-    var mixer = child_process.spawn("ffmpeg", [
+    let mixer = child_process.spawn("ffmpeg", [
       "-y", "-i", path.join(folderName, "noaudio.mp4"), "-itsoffset",
       "00:00:" +
                 "00",

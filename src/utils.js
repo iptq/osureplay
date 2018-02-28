@@ -68,17 +68,17 @@ let tintCache = {};
 let tint = function(keyPrefix, image, color) {
   let key = `${keyPrefix}:${color.red},${color.green},${color.blue}`;
   if (!(key in tintCache)) {
-    var canvas = new Canvas();
+    let canvas = new Canvas();
     canvas.height = image.height;
     canvas.width = image.width;
-    var ctx = canvas.getContext("2d");
+    let ctx = canvas.getContext("2d");
     ctx.drawImage(image, 0, 0);
-    var w = image.width, h = image.height;
+    let w = image.width, h = image.height;
     if (!w || !h)
       return image;
-    var imgdata = ctx.getImageData(0, 0, w, h);
-    var rgba = imgdata.data;
-    for (var px = 0, ct = w * h * 4; px < ct; px += 4) {
+    let imgdata = ctx.getImageData(0, 0, w, h);
+    let rgba = imgdata.data;
+    for (let px = 0, ct = w * h * 4; px < ct; px += 4) {
       rgba[px] *= color.red / 255;
       rgba[px + 1] *= color.green / 255;
       rgba[px + 2] *= color.blue / 255;

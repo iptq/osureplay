@@ -6,7 +6,7 @@ class Color {
     green = Math.floor(Math.min(green, 255));
     blue = Math.floor(Math.min(blue, 255));
 
-    var redH = red.toString(16), greenH = green.toString(16),
+    let redH = red.toString(16), greenH = green.toString(16),
       blueH = blue.toString(16);
 
     return redH.pad(2) + greenH.pad(2) + blueH.pad(2);
@@ -27,17 +27,17 @@ class Color {
     let color = this;
     if (color === undefined)
       return image;
-    var canvas = new Canvas();
+    let canvas = new Canvas();
     canvas.height = image.height;
     canvas.width = image.width;
-    var ctx = canvas.getContext("2d");
+    let ctx = canvas.getContext("2d");
     ctx.drawImage(image, 0, 0);
-    var w = image.width, h = image.height;
+    let w = image.width, h = image.height;
     if (!w || !h)
       return image;
-    var imgdata = ctx.getImageData(0, 0, w, h);
-    var rgba = imgdata.data;
-    for (var px = 0, ct = w * h * 4; px < ct; px += 4) {
+    let imgdata = ctx.getImageData(0, 0, w, h);
+    let rgba = imgdata.data;
+    for (let px = 0, ct = w * h * 4; px < ct; px += 4) {
       rgba[px] *= color.red / 255;
       rgba[px + 1] *= color.blue / 255;
       rgba[px + 2] *= color.green / 255;

@@ -26,6 +26,7 @@
         "no-unreachable": "warn",
         "no-unused-vars": [ "warn", { "argsIgnorePattern": "^_" } ],
         "no-whitespace-before-property": "warn",
+        "no-var": "error",
         "semi-spacing": ["warn", {"before": false, "after": true}],
         "space-in-parens": ["error", "never"],
         "space-infix-ops": "warn",

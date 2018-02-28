@@ -16,9 +16,9 @@ class Reader {
     return d[0];
   }
   readULEB() {
-    var val = 0;
-    var i = 0;
-    var c;
+    let val = 0;
+    let i = 0;
+    let c;
     while (((c = this.readByte()) & 0x80) == 0x80) {
       val = val | ((c & 0x7F) << (i++ * 7));
     }
@@ -97,7 +97,7 @@ class Replay {
     // mods
     this.mods = reader.readInt();
     this.modmap = {};
-    for (var key in modmask)
+    for (let key in modmask)
       if (this.mods & modmask[key])
         this.modmap[key] = true;
     console.log(this.modmap);
@@ -112,7 +112,7 @@ class Replay {
     this.replayLength = reader.readInt();
     let rawMovementData = reader.data.slice(reader.offset);
     // process cursor information
-    var movementData = await utils.decompressLZMA(rawMovementData);
+    let movementData = await utils.decompressLZMA(rawMovementData);
     if (!movementData) {
       process.stderr.write("Failed to parse movement data.\n");
       process.exit(1);
@@ -127,7 +127,7 @@ class Replay {
     });
     this.cursorPositions = parsedMovementData.slice(0);
     this.cursorPositions[0].time = this.cursorPositions[0].dt;
-    for (var i = 1; i < parsedMovementData.length; ++i) {
+    for (let i = 1; i < parsedMovementData.length; ++i) {
       this.cursorPositions[i].time =
           parsedMovementData[i - 1].time + parsedMovementData[i].dt;
       this.cursorPositions[i].keys = {

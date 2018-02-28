@@ -5,7 +5,7 @@ const Spline = require("../math/spline");
 const constants = require("../constants");
 const utils = require("../utils");
 
-var curveTypes = {
+let curveTypes = {
   "C" : "catmull",
   "B" : "bezier",
   "L" : "linear",
@@ -15,14 +15,14 @@ var curveTypes = {
   "linear" : "L",
   "perfect" : "P"
 };
-var additionTypes = [ null, "normal", "soft", "drum" ];
+let additionTypes = [ null, "normal", "soft", "drum" ];
 
 class HitObject {
   static parseAdditions(str) {
-    var additions = {};
+    let additions = {};
     if (!str)
       return additions;
-    var parts = str.split(":");
+    let parts = str.split(":");
 
     if (parts[0] && parts[0] !== "0")
       additions.sample = additionTypes[parseInt(parts[0])];
@@ -37,10 +37,10 @@ class HitObject {
     return additions;
   }
   static parseEdgeAdditions(str) {
-    var additions = {};
+    let additions = {};
     if (!str)
       return additions;
-    var parts = str.split(":");
+    let parts = str.split(":");
 
     if (parts[0] && parts[0] !== "0")
       additions.sampleset = additionTypes[parseInt(parts[0])];
@@ -49,11 +49,11 @@ class HitObject {
     return additions;
   }
   static parse(line) {
-    var parts = line.split(",");
-    var soundType = parseInt(parts[4]);
-    var objectType = parseInt(parts[3]);
-    var properties = {};
-    var i;
+    let parts = line.split(",");
+    let soundType = parseInt(parts[4]);
+    let objectType = parseInt(parts[3]);
+    let properties = {};
+    let i;
 
     properties.judged = false; // whether or not the object has produced points
     properties.originalLine = line;
@@ -82,29 +82,29 @@ class HitObject {
       properties.additions = HitObject.parseAdditions(parts[10]);
       properties.edges = [];
       properties.points = [ properties.position ];
-      var points = (parts[5] || "").split("|");
+      let points = (parts[5] || "").split("|");
       if (points.length) {
         properties.curveType = curveTypes[points[0]] || "unknown";
         for (i = 1; i < points.length; i += 1) {
-          var coordinates = points[i].split(":");
+          let coordinates = points[i].split(":");
           properties.points.push(
             new Vector(parseInt(coordinates[0]), parseInt(coordinates[1])));
         }
       }
-      var edgeSounds = [];
-      var edgeAdditions = [];
+      let edgeSounds = [];
+      let edgeAdditions = [];
       if (parts[8])
         edgeSounds = parts[8].split("|");
       if (parts[9])
         edgeAdditions = parts[9].split("|");
 
       for (i = 0; i < properties.repeatCount + 1; i += 1) {
-        var edge = {
+        let edge = {
           "soundTypes" : [],
           "additions" : HitObject.parseEdgeAdditions(edgeAdditions[i])
         };
         if (edgeSounds[i]) {
-          var sound = parseInt(edgeSounds[i]);
+          let sound = parseInt(edgeSounds[i]);
           if ((sound & 2) == 2)
             edge.soundTypes.push("whistle");
           if ((sound & 4) == 4)
@@ -128,7 +128,7 @@ class HitObject {
     }
   }
   constructor(properties) {
-    for (var key in properties) {
+    for (let key in properties) {
       this[key] = properties[key];
     }
     this.stackHeight = 0;
@@ -176,14 +176,14 @@ class HitCircle extends HitObject {
       let fullNumberWidth = 0;
       let number = this.comboNumber.toString();
       let numberData = [];
-      for (var i = 0; i < number.length; ++i) {
+      for (let i = 0; i < number.length; ++i) {
         let image = player.skin.get("default-" + number.charAt(i));
         let width = image.width * fixedNumberHeight / image.height;
         fullNumberWidth += width;
         numberData.push([ image, width ]);
       }
       let x = -fullNumberWidth / 2;
-      for (var i = 0; i < numberData.length; ++i) {
+      for (let i = 0; i < numberData.length; ++i) {
         let [image, width] = numberData[i];
         ctx.drawImage(image, x, -fixedNumberHeight / 2, width,
           fixedNumberHeight);
@@ -224,10 +224,10 @@ class Slider extends HitObject {
     this.fadetime = 0.25;
   }
   calculate() {
-    var timing = this.beatmap.getTimingPoint(this.startTime);
+    let timing = this.beatmap.getTimingPoint(this.startTime);
     if (timing) {
-      var pxPerBeat = this.beatmap.SliderMultiplier * 100 * timing.velocity;
-      var beatsNumber = (this.pixelLength * this.repeatCount) / pxPerBeat;
+      let pxPerBeat = this.beatmap.SliderMultiplier * 100 * timing.velocity;
+      let beatsNumber = (this.pixelLength * this.repeatCount) / pxPerBeat;
       this.duration = Math.ceil(beatsNumber * timing.beatLength);
       this.endTime = this.startTime + this.duration;
     }
@@ -273,14 +273,14 @@ class Slider extends HitObject {
       let fullNumberWidth = 0;
       let number = this.comboNumber.toString();
       let numberData = [];
-      for (var i = 0; i < number.length; ++i) {
+      for (let i = 0; i < number.length; ++i) {
         let image = player.skin.get("default-" + number.charAt(i));
         let width = image.width * fixedNumberHeight / image.height;
         fullNumberWidth += width;
         numberData.push([ image, width ]);
       }
       let x = -fullNumberWidth / 2;
-      for (var i = 0; i < numberData.length; ++i) {
+      for (let i = 0; i < numberData.length; ++i) {
         let [image, width] = numberData[i];
         ctx.drawImage(image, x, -fixedNumberHeight / 2, width,
           fixedNumberHeight);
@@ -344,7 +344,7 @@ class Slider extends HitObject {
   }
   hrFlip() {
     // this.position.y = 384 - this.position.y;
-    for (var i = 0; i < this.points.length; ++i)
+    for (let i = 0; i < this.points.length; ++i)
       this.points[i].y = 384 - this.points[i].y;
     this.calculate();
   }

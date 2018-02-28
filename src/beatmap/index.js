@@ -23,23 +23,23 @@ class Beatmap {
     return result;
   }
   static async parseString(data) {
-    var i;
-    var beatmap = new Beatmap();
-    var lines = data.split(/\r?\n/);
-    var osuSection;
-    var sections = {};
+    let i;
+    let beatmap = new Beatmap();
+    let lines = data.split(/\r?\n/);
+    let osuSection;
+    let sections = {};
     beatmap.ComboColors = [];
     beatmap.Bookmarks = [];
     beatmap.Tags = [];
-    var parseBookmark = function(bookmark) {
+    let parseBookmark = function(bookmark) {
       return parseInt(bookmark); // avoid
       // http://stackoverflow.com/questions/14528397/strange-behavior-for-map-parseint
     };
     for (i = 0; i < lines.length; i += 1) {
-      var line = lines[i].trim();
+      let line = lines[i].trim();
       if (!line)
         continue;
-      var match = sectionPattern.exec(line);
+      let match = sectionPattern.exec(line);
       if (match) {
         osuSection = match[1].toLowerCase();
         continue;
@@ -119,9 +119,9 @@ class Beatmap {
 
     beatmap.BpmMin = Infinity;
     beatmap.BpmMax = 0;
-    var prev = null;
+    let prev = null;
     for (i = 0; i < sections.TimingPoints.length; i += 1) {
-      var timingPoint = new TimingPoint(sections.TimingPoints[i]);
+      let timingPoint = new TimingPoint(sections.TimingPoints[i]);
       if (timingPoint.bpm) {
         beatmap.BpmMin = Math.min(beatmap.BpmMin, timingPoint.bpm);
         beatmap.BpmMax = Math.max(beatmap.BpmMax, timingPoint.bpm);
@@ -140,7 +140,7 @@ class Beatmap {
     let comboColor = 0;
     beatmap.maxCombo = 0;
     for (i = 0; i < sections.HitObjects.length; i += 1) {
-      var hitObject = HitObject.parse(sections.HitObjects[i]);
+      let hitObject = HitObject.parse(sections.HitObjects[i]);
       hitObject.beatmap = beatmap;
       hitObject.id = beatmap.newID();
       if (i === 0 || hitObject.newCombo) { // or spinner or break apparently
@@ -163,10 +163,10 @@ class Beatmap {
     beatmap.breakTimes = [];
     beatmap.originalEvents = sections.Events.join('\n');
     for (i = 0; i < sections.Events.length; i += 1) {
-      var members = sections.Events[i].split(',');
+      let members = sections.Events[i].split(',');
 
       if (members[0] == '0' && members[1] == '0' && members[2]) {
-        var bgName = members[2].trim();
+        let bgName = members[2].trim();
 
         if (bgName.charAt(0) == '"' &&
             bgName.charAt(bgName.length - 1) == '"') {
@@ -185,7 +185,7 @@ class Beatmap {
   }
 
   newID() {
-    var id;
+    let id;
     while (true) {
       id = utils.randomString();
       if (id in this.HitObjects)
@@ -348,10 +348,10 @@ class Beatmap {
 
   getTimingPoint(offset) {
     // perform binary search for the timing section to which this offset belongs
-    var left = 0, right = this.TimingPoints.length - 1;
-    var result = 0;
+    let left = 0, right = this.TimingPoints.length - 1;
+    let result = 0;
     while (left <= right) {
-      var midpoint = ~~((left + right) / 2);
+      let midpoint = ~~((left + right) / 2);
       if (this.TimingPoints[midpoint].offset > offset) {
         right = midpoint - 1;
       } else {
@@ -368,8 +368,9 @@ class Beatmap {
   }
 
   getIndexAt(offset) {
-    for (var i = 0; i < this.HitObjects.length; i++) {
-      var obj = this.HitObjects[i];
+    let i;
+    for (i = 0; i < this.HitObjects.length; i++) {
+      let obj = this.HitObjects[i];
       if (obj instanceof Slider || obj instanceof Spinner) {
         if (offset < obj.endTime)
           return i;
@@ -382,7 +383,7 @@ class Beatmap {
   }
 
   matchObj(id) {
-    for (var i = 0; i < this.HitObjects.length; i++) {
+    for (let i = 0; i < this.HitObjects.length; i++) {
       if (this.HitObjects[i].hasOwnProperty('id') &&
           this.HitObjects[i].id == id)
         return this.HitObjects[i];
