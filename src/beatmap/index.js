@@ -14,7 +14,7 @@ class Beatmap {
   constructor() {}
   static async parse(file) {
     if (!fs.existsSync(file)) {
-      callback(new Error("File doesn't exist."));
+      throw new Error("File doesn't exist.");
     }
 
     let data = await utils.readFileAsync(file);
@@ -23,7 +23,7 @@ class Beatmap {
     return result;
   }
   static async parseString(data) {
-    var i, id;
+    var i;
     var beatmap = new Beatmap();
     var lines = data.split(/\r?\n/);
     var osuSection;

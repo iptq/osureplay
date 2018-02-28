@@ -1,4 +1,4 @@
-const Canvas = require("canvas"), Image = Canvas.Image;
+const Canvas = require("canvas");
 
 const SliderMath = require("./slider");
 const Vector = require("./vector");
@@ -151,7 +151,7 @@ class BezierApproximator {
 }
 
 class BezierSpline extends Spline {
-  constructor(cs, points, length) {
+  constructor(cs, points, _length) {
     super(cs);
     let bezier = new BezierApproximator(points);
     this.points = bezier.calculate();

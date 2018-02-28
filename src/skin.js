@@ -2,7 +2,6 @@ const path = require("path");
 
 const Canvas = require("canvas"), Image = Canvas.Image;
 
-const constants = require("./constants");
 const utils = require("./utils");
 
 const names = [

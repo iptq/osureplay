@@ -109,7 +109,7 @@ class Replay {
     // fuck timestamp
     reader.readInt();
     reader.readInt();
-    let replayLength = reader.readInt();
+    this.replayLength = reader.readInt();
     let rawMovementData = reader.data.slice(reader.offset);
     // process cursor information
     var movementData = await utils.decompressLZMA(rawMovementData);

@@ -3,17 +3,10 @@ const Vector = require("./vector");
 class SliderMath {
   static getCircumCircle(p1, p2, p3) {
     // get the [center, radius] circumcircle of the points p1, p2, p3
-
     var x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y, x3 = p3.x, y3 = p3.y;
     var D = 2 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2));
-    var Ux =
-        ((x1 * x1 + y1 * y1) * (y2 - y3) + (x2 * x2 + y2 * y2) * (y3 - y1) +
-         (x3 * x3 + y3 * y3) * (y1 - y2)) /
-        D;
-    var Uy =
-        ((x1 * x1 + y1 * y1) * (x3 - x2) + (x2 * x2 + y2 * y2) * (x1 - x3) +
-         (x3 * x3 + y3 * y3) * (x2 - x1)) /
-        D;
+    var Ux = ((x1 * x1 + y1 * y1) * (y2 - y3) + (x2 * x2 + y2 * y2) * (y3 - y1) + (x3 * x3 + y3 * y3) * (y1 - y2)) / D;
+    var Uy = ((x1 * x1 + y1 * y1) * (x3 - x2) + (x2 * x2 + y2 * y2) * (x1 - x3) + (x3 * x3 + y3 * y3) * (x2 - x1)) / D;
     var center = new Vector(Ux, Uy);
     var r = center.distanceTo(new Vector(x1, y1));
     return [ center, r ];
@@ -32,30 +25,7 @@ class SliderMath {
       // not supported
       return;
     case "bezier":
-      if (!points || points.length < 2)
-        return undefined;
-      if (points.length == 2) {
-        return SliderMath.pointOnLine(points[0], points[1], sliderLength);
-      }
-      points = points.slice();
-      var bezier, previous, point;
-      for (var i = 0, l = points.length; i < l; i += 1) {
-        point = points[i];
-        if (!point)
-          continue;
-        if (!previous) {
-          previous = point;
-          continue;
-        }
-        if (point.equals(previous)) {
-          bezier = new Bezier(points.splice(0, i));
-          sliderLength -= bezier.pxLength;
-          i = 0; //, length = points.length;
-        }
-        previous = point;
-      }
-      bezier = new Bezier(points);
-      return bezier.pointAtDistance(sliderLength);
+      throw new Error("unimplemented");
     case "perfect":
       if (!points || points.length < 2)
         return undefined;

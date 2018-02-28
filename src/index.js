@@ -13,7 +13,7 @@ const Skin = require("./skin");
 const constants = require("./constants");
 const utils = require("./utils");
 
-process.on("unhandledRejection", (reason, promise) => { console.log(reason); });
+process.on("unhandledRejection", (reason, _promise) => { console.log(reason); });
 
 let main = async function() {
   //
