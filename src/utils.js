@@ -4,6 +4,13 @@ const Canvas = require("canvas");
 const lzma = require("lzma");
 const unzip = require("unzip");
 
+let gc = function() {
+  if (global.gc)
+    global.gc();
+  else
+    console.warn('No GC hook! Start your program with the `--expose-gc` flag.');
+}
+
 let decompressLZMA = async function(data) {
   return new Promise(function(resolve) {
     lzma.decompress(data, function(result, err) {
@@ -84,6 +91,7 @@ let tint = function(keyPrefix, image, color) {
 
 module.exports.decompressLZMA = decompressLZMA;
 module.exports.extract = extract;
+module.exports.gc = gc;
 module.exports.randomString = randomString;
 module.exports.readFileAsync = readFileAsync;
 module.exports.record = record;

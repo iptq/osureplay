@@ -16,6 +16,7 @@
         "comma-spacing": "warn",
         "constructor-super": "warn",
         "eol-last": "warn",
+        "space-before-blocks": "warn",
         "indent": [ "warn", 2 ],
         "keyword-spacing": "warn",
         "no-const-assign": "warn",

@@ -116,8 +116,8 @@ let main = async function() {
   //
   // process frames
   //
-  let END = 700;
-  // let END = this.frameCount;
+  // let END = 90;
+  let END = this.frameCount;
   console.log(`beginning rendering (${this.frameCount} frames)...`);
   process.stdout.write("\rProcessing 0%");
   for (let frame = 0; frame < END; ++frame) {
@@ -136,9 +136,9 @@ let main = async function() {
     }
   }
   console.log();
-
   recorder.stdin.end();
   recorder.on("close", function() {
+    utils.gc();
     // mix audio
     var mixer = child_process.spawn("ffmpeg", [
       "-y", "-i", path.join(folderName, "noaudio.mp4"), "-itsoffset",

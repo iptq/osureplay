@@ -6,7 +6,7 @@
   "bin": {},
   "main": "index.js",
   "scripts": {
-    "test": "rm -rf working-directory && ./bin/osureplay example/$SONG/replay.osr example/$SONG/map.osz out.mp4"
+    "test": "rm -rf working-directory && node --expose-gc ./bin/osureplay example/$SONG/replay.osr example/$SONG/map.osz out.mp4"
   },
   "repository": {
     "type": "git",

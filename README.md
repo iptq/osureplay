@@ -17,7 +17,7 @@ Roadmap
 - [x] parses .osz/.osu files
 - [x] draw elements to screen
   - [x] draw hit circles
-  - [ ] calculate bezier slider shapes
+  - [x] calculate bezier slider shapes
     - [ ] sliders a bit more transparent
     - [ ] slider ticks and ball
   - [ ] follow points

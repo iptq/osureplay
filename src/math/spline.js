@@ -50,30 +50,30 @@ class Spline {
     this.image = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
     this.body = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
     this.border = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
-    this.overlay = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
+    this.gradient = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
 
-    let c1 = this.overlay.getContext("2d"), c2 = this.border.getContext("2d"),
+    let gradientCtx = this.gradient.getContext("2d"), c2 = this.border.getContext("2d"),
       c3 = this.body.getContext("2d");
     var origin = this.points[0].add(new Vector(64, 48)).o2r();
 
-    c1.save();
-    c1.translate(origin.x, origin.y);
+    gradientCtx.save();
+    gradientCtx.translate(origin.x, origin.y);
     c2.translate(origin.x, origin.y);
     c3.translate(origin.x, origin.y);
 
-    c1.beginPath();
+    gradientCtx.beginPath();
     c2.beginPath();
     c3.beginPath();
 
-    c1.lineCap = c2.lineCap = c3.lineCap = "round";
-    c1.lineJoin = c2.lineJoin = c3.lineJoin = "round";
-    c1.moveTo(0, 0);
+    gradientCtx.lineCap = c2.lineCap = c3.lineCap = "round";
+    gradientCtx.lineJoin = c2.lineJoin = c3.lineJoin = "round";
+    gradientCtx.moveTo(0, 0);
     c2.moveTo(0, 0);
     c3.moveTo(0, 0);
 
     for (let i = 1; i < this.points.length; ++i) {
       let position = this.points[i].add(new Vector(64, 48)).o2r().sub(origin);
-      c1.lineTo(position.x, position.y);
+      gradientCtx.lineTo(position.x, position.y);
       c2.lineTo(position.x, position.y);
       c3.lineTo(position.x, position.y);
     }
@@ -82,18 +82,18 @@ class Spline {
     // thanks alex
     for (let a = 0.0, i = 0; a < cs / K; ++i) {
       // console.log(i, a);
-      c1.save();
-      c1.lineWidth = c2.lineWidth = c3.lineWidth = cs - a * K;
+      gradientCtx.save();
+      gradientCtx.lineWidth = c2.lineWidth = c3.lineWidth = cs - a * K;
       if (i === 0) {
         c2.strokeStyle = "rgba(255, 255, 255, 0.75)";
         a += cs / (10 * K);
         c2.stroke();
       } else {
-        c1.globalAlpha = a / cs * K / 4;
+        gradientCtx.globalAlpha = a / cs * K / 4;
         // console.log(c1.globalAlpha);
-        c1.strokeStyle = "rgba(255, 255, 255, 0.5)"; // middle color
+        gradientCtx.strokeStyle = "rgba(255, 255, 255, 1)"; // middle color
         a += K;
-        c1.stroke();
+        gradientCtx.stroke();
         if (i === 1) {
           c3.save();
           c3.translate(-origin.x, -origin.y);
@@ -107,12 +107,12 @@ class Spline {
           c2.drawImage(this.body, 0, 0);
         }
       }
-      c1.restore();
+      gradientCtx.restore();
     }
-    c1.restore();
+    gradientCtx.restore();
 
-    c1.globalCompositeOperation = "copy";
-    c1.globalAlpha = 0.25;
+    gradientCtx.globalCompositeOperation = "copy";
+    gradientCtx.globalAlpha = 0.25;
     // c1.drawImage(this.overlay, 0, 0);
   }
 }
@@ -156,7 +156,7 @@ class BezierApproximator {
     for (var i = 0; i < this.points.length - 1; ++i)
       left[this.points.length + i] = right[i + 1];
     output.push(points[0]);
-    for (var i = 1; i < this.points.length - 1; ++i){
+    for (var i = 1; i < this.points.length - 1; ++i) {
       let index = 2 * i;
       let p = left[index - 1].add(left[index].smul(2)).add(left[index + 1]).smul(0.25);
       output.push(p);
@@ -197,7 +197,7 @@ class BezierSpline extends Spline {
     super(cs);
     this.control = points;
     let lastIndex = 0;
-    for (var i = 0; i < points.length; ++i){
+    for (var i = 0; i < points.length; ++i) {
       // split on red anchors
       let multipart = i < points.length - 2 && points[i].equals(points[i + 1]);
       if (multipart || i == points.length - 1) { // end of curve segment

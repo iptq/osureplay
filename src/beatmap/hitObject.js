@@ -291,17 +291,17 @@ class Slider extends HitObject {
     let drawSliderBody = () => {
       ctx.save();
       ctx.translate(-position.x, -position.y);
+      ctx.globalAlpha = 0.6;
       ctx.drawImage(this.spline.border, 0, 0);
       ctx.globalCompositeOperation = "destination-out";
-      ctx.globalAlpha = 1;
+      // ctx.globalAlpha = 1;
 
       let tmp = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
       let c1 = tmp.getContext("2d");
       c1.globalAlpha = 0.9;
-      c1.drawImage(
-        utils.tint(`slider:${this.id}`, this.spline.body, this.comboColor), 0,
-        0);
-      c1.drawImage(this.spline.overlay, 0, 0);
+      let tinted = utils.tint(`slider:${this.id}`, this.spline.body, this.comboColor);
+      c1.drawImage(tinted, 0, 0);
+      c1.drawImage(this.spline.gradient, 0, 0);
 
       ctx.drawImage(tmp, 0, 0);
       ctx.restore();
