@@ -312,7 +312,7 @@ class Slider extends HitObject {
       let progress = (elapsed - iteration * bodyDuration) / bodyDuration;
       let ballpoint = this.spline.pointAt(iteration % 2 == 0 ? progress : 1.0 - progress).o2r();
 
-      let ballImage = player.skin.get("sliderb0");
+      let ballImage = utils.tint("sliderb0", player.skin.get("sliderb0"), this.comboColor);
       ctx.save();
       ctx.translate(-position.x + ballpoint.x, -position.y + ballpoint.y);
       ctx.drawImage(ballImage, -CS / 2, -CS / 2, CS, CS);

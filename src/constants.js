@@ -6,7 +6,7 @@ module.exports = (function() {
     FULL_WIDTH :    1366,
     FULL_HEIGHT :   768,
     ACTUAL_HEIGHT : 672,
-    FPS :           30,
+    FPS :           45,
 
     CURSOR_SIZE :         40,
     CURSOR_TRAIL_LENGTH : 12,

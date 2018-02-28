@@ -1,3 +1,4 @@
+const SpriteManager = require("./graphics/spriteManager");
 const Vector = require("./math/vector");
 const constants = require("./constants");
 const utils = require("./utils");
@@ -8,6 +9,11 @@ class Player {
     this.skin = skin;
     this.replay = replay;
     this.canvas = canvas;
+
+    // sprite managers
+    this.spriteManagers = {
+      cursor : new SpriteManager()
+    };
 
     this.ctx = canvas.getContext("2d");
     this.objIndex = 0; // the first hitobject that hasn't faded completely
