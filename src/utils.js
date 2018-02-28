@@ -8,7 +8,7 @@ let gc = function() {
   if (global.gc)
     global.gc();
   else
-    console.warn('No GC hook! Start your program with the `--expose-gc` flag.');
+    console.warn("No GC hook! Start your program with the `--expose-gc` flag.");
 }
 
 let decompressLZMA = async function(data) {

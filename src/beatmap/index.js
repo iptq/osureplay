@@ -71,7 +71,7 @@ class Beatmap {
           match = keyPairPattern.exec(line);
           if (match) {
             if (!match[2])
-              match[2] = '';
+              match[2] = "";
             if (/combo(\d+)/i.exec(match[1])) {
               beatmap.ComboColors.push(Color.fromArray(match[2].split(",")));
               continue;
@@ -161,20 +161,20 @@ class Beatmap {
     });
 
     beatmap.breakTimes = [];
-    beatmap.originalEvents = sections.Events.join('\n');
+    beatmap.originalEvents = sections.Events.join("\n");
     for (i = 0; i < sections.Events.length; i += 1) {
-      let members = sections.Events[i].split(',');
+      let members = sections.Events[i].split(",");
 
-      if (members[0] == '0' && members[1] == '0' && members[2]) {
+      if (members[0] == "0" && members[1] == "0" && members[2]) {
         let bgName = members[2].trim();
 
-        if (bgName.charAt(0) == '"' &&
-            bgName.charAt(bgName.length - 1) == '"') {
+        if (bgName.charAt(0) == "\"" &&
+            bgName.charAt(bgName.length - 1) == "\"") {
           beatmap.bgFilename = bgName.substring(1, bgName.length - 1);
         } else {
           beatmap.bgFilename = bgName;
         }
-      } else if (members[0] == '2' && /^[0-9]+$/.test(members[1]) &&
+      } else if (members[0] == "2" && /^[0-9]+$/.test(members[1]) &&
                  /^[0-9]+$/.test(members[2])) {
         beatmap.breakTimes.push(
           {startTime : parseInt(members[1]), endTime : parseInt(members[2])});
@@ -384,7 +384,7 @@ class Beatmap {
 
   matchObj(id) {
     for (let i = 0; i < this.HitObjects.length; i++) {
-      if (this.HitObjects[i].hasOwnProperty('id') &&
+      if (this.HitObjects[i].hasOwnProperty("id") &&
           this.HitObjects[i].id == id)
         return this.HitObjects[i];
     }

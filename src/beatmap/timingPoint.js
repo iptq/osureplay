@@ -29,8 +29,8 @@ class TimingPoint {
     parts.push(this.sampleSetId);
     parts.push(this.customSampleIndex);
     parts.push(this.sampleVolume);
-    parts.push(this.timingChange ? '1' : '0');
-    parts.push(this.kiaiTimeActive ? '1' : '0');
+    parts.push(this.timingChange ? "1" : "0");
+    parts.push(this.kiaiTimeActive ? "1" : "0");
     return parts.join(",");
   }
 }
