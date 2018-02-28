@@ -100,7 +100,6 @@ class Replay {
     for (let key in modmask)
       if (this.mods & modmask[key])
         this.modmap[key] = true;
-    console.log(this.modmap);
 
     if (reader.readByte()) {
       let lifeBarLength = reader.readULEB();
@@ -140,7 +139,6 @@ class Replay {
       };
     }
     this.lastCursor = 0;
-    console.log("Replay has been loaded.");
   }
   getCursorAt(timestamp) {
     // assumes this function is being called sequentially

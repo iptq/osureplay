@@ -39,7 +39,6 @@ let extract = function(zip, folder) {
     fs.createReadStream(zip)
       .pipe(unzip.Extract({path : folder}))
       .on("close", function() { resolve(); });
-    console.log("Extraction complete.");
   });
 };
 

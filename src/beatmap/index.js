@@ -19,7 +19,6 @@ class Beatmap {
 
     let data = await utils.readFileAsync(file);
     let result = await Beatmap.parseString(data.toString());
-    console.log("Beatmap parsed.");
     return result;
   }
   static async parseString(data) {
@@ -212,7 +211,6 @@ class Beatmap {
       for (let obj of this.HitObjects)
         obj.hrFlip();
     }
-    console.log(this.AdjDiff);
   }
 
   mapDiffRange(diff, min, mid, max) {
@@ -240,16 +238,6 @@ class Beatmap {
       obj.radius = this.RealCS;
       if (obj instanceof Slider)
         obj.calculate();
-      // if (obj instanceof HitObject.Slider) {
-      //   scount++;
-      //   if (scount >= 2) {
-      //     console.log(obj.spline);
-      //     for (let j = 0; j < 1; j += 0.02) {
-      //       console.log(j, obj.spline.pointAt(j));
-      //     }
-      //     process.exit(1);
-      //   }
-      // }
     }
   }
 
@@ -261,7 +249,6 @@ class Beatmap {
     while (end < 0)
       end += nObj;
     let stackThreshold = this.ReactionTime * this.StackLeniency;
-    // console.log("stack leniency:", stackLeniency);
 
     // reset stacking first
     for (let i = end; i >= start; --i)
@@ -335,7 +322,6 @@ class Beatmap {
           if (objN.position.distanceTo(this.HitObjects[j].position) <
               STACK_LENIENCE) {
             this.HitObjects[n].stackHeight = this.HitObjects[j].stackHeight + 1;
-            // console.log("new stack height =", objN.stackHeight);
             j = n;
           }
         }
@@ -349,7 +335,6 @@ class Beatmap {
           if (objN.endPosition.distanceTo(this.HitObjects[j].position) <
               STACK_LENIENCE) {
             this.HitObjects[n].stackHeight = this.HitObjects[j].stackHeight + 1;
-            // console.log("new stack height =", objN.stackHeight);
             j = n;
           }
         }

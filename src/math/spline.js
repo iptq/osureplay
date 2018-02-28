@@ -108,7 +108,6 @@ class Spline {
     // get that gradient effect
     // thanks alex
     for (let a = 0.0, i = 0; a < cs / K; ++i) {
-      // console.log(i, a);
       gradientCtx.save();
       gradientCtx.lineWidth = c2.lineWidth = c3.lineWidth = cs - a * K;
       if (i === 0) {
@@ -117,7 +116,6 @@ class Spline {
         c2.stroke();
       } else {
         gradientCtx.globalAlpha = a / cs * K / 4;
-        // console.log(c1.globalAlpha);
         gradientCtx.strokeStyle = "rgba(255, 255, 255, 1)"; // middle color
         a += K;
         gradientCtx.stroke();
@@ -242,8 +240,6 @@ class BezierSpline extends Spline {
         lastIndex = i;
       }
     }
-    // console.log("CONTROL:", this.control);
-    // console.log("OUTPUT:", this.points);
     this.calculate();
     this.prerender();
   }

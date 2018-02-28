@@ -13,7 +13,7 @@ const Skin = require("./skin");
 const constants = require("./constants");
 const utils = require("./utils");
 
-process.on("unhandledRejection", (reason, _promise) => { console.log(reason); });
+process.on("unhandledRejection", (reason, _promise) => { process.stderr.write("Unhandled rejection: " + reason.toString() + "\n"); });
 
 let main = async function() {
   //
@@ -50,7 +50,6 @@ let main = async function() {
     }
   }
   folderName = fs.realpathSync(folderName);
-  console.log("working directory:", folderName);
 
   let mapFolder = path.join(folderName, "map");
   try {
@@ -95,7 +94,6 @@ let main = async function() {
 
   this.mp3duration =
         await mp3Duration(path.join(mapFolder, beatmap.AudioFilename));
-  console.log("Audio Length: " + this.mp3duration);
   this.frameCount = Math.ceil(this.mp3duration * constants.FPS);
 
   // load skin
@@ -118,7 +116,6 @@ let main = async function() {
   //
   let END = 500;
   // let END = this.frameCount;
-  console.log(`beginning rendering (${this.frameCount} frames)...`);
   process.stdout.write("\rProcessing 0%");
   for (let frame = 0; frame < END; ++frame) {
     try {
@@ -135,10 +132,11 @@ let main = async function() {
       console.error(e);
     }
   }
-  console.log();
   recorder.stdin.end();
   recorder.on("close", function() {
+    // force garbage collection -_
     utils.gc();
+
     // mix audio
     let mixer = child_process.spawn("ffmpeg", [
       "-y", "-i", path.join(folderName, "noaudio.mp4"), "-itsoffset",
@@ -149,7 +147,7 @@ let main = async function() {
     ]);
 
     mixer.stderr.on("data", function(data) { process.stdout.write(data); });
-    mixer.on("close", function() { console.log("Done"); });
+    mixer.on("close", function() { console.log("Done!"); });
   });
 };
 

@@ -48,8 +48,6 @@ class Skin {
                            Math.round((i + 1) * 10000.0 / names.length) / 100 +
                            "%)  ");
     }
-    console.log();
-    console.log("Skin has been loaded.");
   }
   get(name, options) {
     let image = this.resources[name];
@@ -78,8 +76,6 @@ class Skin {
         skin[match[1]] = match[2];
       }
     });
-
-    console.log("Skin's .ini parsed.");
     return skin;
   }
 }
