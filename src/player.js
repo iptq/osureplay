@@ -1,5 +1,6 @@
 const Vector = require("./math/vector");
 const constants = require("./constants");
+const utils = require("./utils");
 
 class Player {
   constructor(beatmap, skin, replay, canvas) {
@@ -21,13 +22,13 @@ class Player {
     // normally this would be a clusterfuck of if statements
     // i'm assuming width > height here..
     // TODO: actually calculate this
-    let imgRatio = this.beatmap.BackgroundImage.width /
-                       this.beatmap.BackgroundImage.height;
-    let newWidth = constants.FULL_HEIGHT * imgRatio;
+    const imgSize = new Vector(this.beatmap.BackgroundImage.width, this.beatmap.BackgroundImage.height);
+    const screenSize = new Vector(constants.FULL_WIDTH, constants.FULL_HEIGHT);
+    const newImgSize = utils.fitImage(imgSize, screenSize);
     ctx.save();
     ctx.drawImage(this.beatmap.BackgroundImage,
-      (constants.FULL_WIDTH - newWidth) / 2, 0, newWidth,
-      constants.FULL_HEIGHT);
+      (constants.FULL_WIDTH - newImgSize.w) / 2, (constants.FULL_HEIGHT - newImgSize.h) / 2,
+      newImgSize.w, newImgSize.h);
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
     ctx.fillRect(0, 0, constants.FULL_WIDTH, constants.FULL_HEIGHT);
     ctx.restore();

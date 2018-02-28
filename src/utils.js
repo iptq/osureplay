@@ -11,6 +11,20 @@ let gc = function() {
     console.warn("No GC hook! Start your program with the `--expose-gc` flag.");
 }
 
+let fitImage = function(imgSize, containerSize, mode = "cover") {
+  // more modes coming later
+  let imgRatio = imgSize.x / imgSize.y;
+  let containerRatio = containerSize.x / containerSize.y;
+  if (mode == "cover") {
+    let ratio;
+    if (imgRatio > containerRatio)
+      ratio = containerSize.h / imgSize.h;
+    else
+      ratio = containerSize.w / imgSize.w;
+    return imgSize.smul(ratio);
+  }
+}
+
 let decompressLZMA = async function(data) {
   return new Promise(function(resolve) {
     lzma.decompress(data, function(result, err) {
@@ -91,6 +105,7 @@ let tint = function(keyPrefix, image, color) {
 
 module.exports.decompressLZMA = decompressLZMA;
 module.exports.extract = extract;
+module.exports.fitImage = fitImage;
 module.exports.gc = gc;
 module.exports.randomString = randomString;
 module.exports.readFileAsync = readFileAsync;
