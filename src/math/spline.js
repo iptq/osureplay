@@ -6,8 +6,10 @@ const constants = require("../constants");
 
 class Spline {
   // in this context, a spline is literally just a list of points
-  constructor(cs) {
+  constructor(cs, points, length) {
     this.cs = cs;
+    this.control = points;
+    this.length = length;
     this.points = [];
   }
 
@@ -37,7 +39,32 @@ class Spline {
     return new PerfectSpline(cs, points, length);
   }
 
-  push(point) { this.points.push(point); }
+  calculate() {
+    this.pxLength = 0;
+    this.lengthMap = new Array();
+    this.lengthMap.push(0);
+    for (let i = 1; i < this.points.length; ++i) {
+      let segmentDistance = this.points[i].distanceTo(this.points[i - 1]);
+      this.pxLength += segmentDistance;
+      this.lengthMap.push(this.pxLength);
+    }
+  }
+
+  pointAt(progress) {
+    let i, distancePercent;
+    for (i = 1; i < this.lengthMap.length; ++i) {
+      distancePercent = 1.0 * this.lengthMap[i] / this.pxLength;
+      if (progress == distancePercent) return this.points[i];
+      if (progress < distancePercent) break;
+    }
+    // interpolate
+    let pi = Math.max(0, i - 1);
+    let left = this.points[pi];
+    let right = this.points[i];
+    let segmentPercent = (this.lengthMap[i] - this.lengthMap[pi]) / this.pxLength;
+    let p = (distancePercent - progress) / segmentPercent;
+    return new Vector(right.x - p * (right.x - left.x), right.y - p * (right.y - left.y));
+  }
 
   prerender() {
     const K = 2.5;
@@ -54,7 +81,7 @@ class Spline {
 
     let gradientCtx = this.gradient.getContext("2d"), c2 = this.border.getContext("2d"),
       c3 = this.body.getContext("2d");
-    let origin = this.points[0].add(new Vector(64, 48)).o2r();
+    let origin = this.points[0].o2r();
 
     gradientCtx.save();
     gradientCtx.translate(origin.x, origin.y);
@@ -72,7 +99,7 @@ class Spline {
     c3.moveTo(0, 0);
 
     for (let i = 1; i < this.points.length; ++i) {
-      let position = this.points[i].add(new Vector(64, 48)).o2r().sub(origin);
+      let position = this.points[i].o2r().sub(origin);
       gradientCtx.lineTo(position.x, position.y);
       c2.lineTo(position.x, position.y);
       c3.lineTo(position.x, position.y);
@@ -193,9 +220,8 @@ class BezierApproximator {
 }
 
 class BezierSpline extends Spline {
-  constructor(cs, points, _length) {
-    super(cs);
-    this.control = points;
+  constructor(cs, points, length) {
+    super(cs, points, length);
     let lastIndex = 0;
     for (let i = 0; i < points.length; ++i) {
       // split on red anchors
@@ -218,14 +244,14 @@ class BezierSpline extends Spline {
     }
     // console.log("CONTROL:", this.control);
     // console.log("OUTPUT:", this.points);
+    this.calculate();
     this.prerender();
   }
 }
 
 class LinearSpline extends Spline {
   constructor(cs, points, length) {
-    super(cs);
-    this.control = points;
+    super(cs, points, length);
 
     // since we can just draw a single line from one point to another we don't
     // need a million points
@@ -237,14 +263,14 @@ class LinearSpline extends Spline {
     // v1 = p0 + ((p1 - p0) * length / |p1 - p0|)
     let unit = points[1].sub(points[0]).norm();
     this.points.push(points[0].add(unit.smul(length)));
+    this.calculate();
     this.prerender();
   }
 }
 
 class PerfectSpline extends Spline {
   constructor(cs, points, length) {
-    super(cs);
-    this.control = points;
+    super(cs, points, length);
 
     // get circumcircle
     let [center, radius] =
@@ -273,6 +299,7 @@ class PerfectSpline extends Spline {
       let rel = new Vector(Math.cos(t) * radius, -Math.sin(t) * radius);
       this.points.push(center.add(rel));
     }
+    this.calculate();
     this.prerender();
   }
 }

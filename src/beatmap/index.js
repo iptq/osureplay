@@ -232,13 +232,24 @@ class Beatmap {
     this.Hit100 = this.mapDiffRange(this.AdjDiff.OD, 140, 100, 60);
     this.Hit50 = this.mapDiffRange(this.AdjDiff.OD, 200, 150, 100);
 
-    let gameFieldWidth = constants.FULL_WIDTH * 512.0 / 640;
+    let gameFieldWidth = constants.ACTUAL_WIDTH;
     // this.RealCS = 88 - 8 * (this.AdjDiff.CS - 2); // ?
     this.RealCS = gameFieldWidth / 8 * (1 - 0.7 * (this.AdjDiff.CS - 5) / 5);
+    // let scount = 0;
     for (let obj of this.HitObjects) {
       obj.radius = this.RealCS;
       if (obj instanceof Slider)
         obj.calculate();
+      // if (obj instanceof HitObject.Slider) {
+      //   scount++;
+      //   if (scount >= 2) {
+      //     console.log(obj.spline);
+      //     for (let j = 0; j < 1; j += 0.02) {
+      //       console.log(j, obj.spline.pointAt(j));
+      //     }
+      //     process.exit(1);
+      //   }
+      // }
     }
   }
 

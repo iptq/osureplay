@@ -27,6 +27,7 @@ const names = [
   "hit100",
   "hit300",
   "scorebar-bg",
+  "sliderb0",
   "sliderfollowcircle",
 ];
 

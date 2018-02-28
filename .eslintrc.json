@@ -13,23 +13,26 @@
         "sourceType": "module"
     },
     "rules": {
+        "no-var": "error",
+        "quotes": ["error", "double"],
+        
         "comma-spacing": "warn",
         "constructor-super": "warn",
         "eol-last": "warn",
         "indent": [ "warn", 2 ],
+        "key-spacing": ["warn", { "align": "value", "afterColon": true, "beforeColon": true, "mode": "strict" }],
         "keyword-spacing": "warn",
         "no-const-assign": "warn",
+        "no-multi-spaces": "warn",
         "no-this-before-super": "warn",
         "no-trailing-spaces": "warn",
         "no-undef": "warn",
         "no-unreachable": "warn",
         "no-unused-vars": [ "warn", { "argsIgnorePattern": "^_" } ],
-        "no-var": "error",
         "no-whitespace-before-property": "warn",
-        "quotes": ["error", "double"],
         "semi-spacing": ["warn", {"before": false, "after": true}],
         "space-before-blocks": "warn",
-        "space-in-parens": ["error", "never"],
+        "space-in-parens": ["warn", "never"],
         "space-infix-ops": "warn",
         "valid-typeof": "warn"
     }

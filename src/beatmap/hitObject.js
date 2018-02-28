@@ -6,13 +6,13 @@ const constants = require("../constants");
 const utils = require("../utils");
 
 let curveTypes = {
-  "C" : "catmull",
-  "B" : "bezier",
-  "L" : "linear",
-  "P" : "perfect",
+  "C" :       "catmull",
+  "B" :       "bezier",
+  "L" :       "linear",
+  "P" :       "perfect",
   "catmull" : "C",
-  "bezier" : "B",
-  "linear" : "L",
+  "bezier" :  "B",
+  "linear" :  "L",
   "perfect" : "P"
 };
 let additionTypes = [ null, "normal", "soft", "drum" ];
@@ -101,7 +101,7 @@ class HitObject {
       for (i = 0; i < properties.repeatCount + 1; i += 1) {
         let edge = {
           "soundTypes" : [],
-          "additions" : HitObject.parseEdgeAdditions(edgeAdditions[i])
+          "additions" :  HitObject.parseEdgeAdditions(edgeAdditions[i])
         };
         if (edgeSounds[i]) {
           let sound = parseInt(edgeSounds[i]);
@@ -136,8 +136,7 @@ class HitObject {
   getRealCoordinates() {
     let stackOffset = this.radius / 20;
     let stackVector = new Vector(stackOffset, stackOffset);
-    return this.position.add(new Vector(64, 48))
-      .o2r()
+    return this.position.o2r()
       .sub(stackVector.smul(this.stackHeight));
   }
   render(_) { throw "Not implemented."; }
@@ -306,7 +305,19 @@ class Slider extends HitObject {
       ctx.drawImage(tmp, 0, 0);
       ctx.restore();
     };
-    let drawSliderBall = () => {};
+    let drawSliderBall = () => {
+      let elapsed = 1.0 * (timestamp - this.startTime);
+      let bodyDuration = 1.0 * (this.duration / this.repeatCount);
+      let iteration = Math.floor(elapsed / bodyDuration) | 0;
+      let progress = (elapsed - iteration * bodyDuration) / bodyDuration;
+      let ballpoint = this.spline.pointAt(iteration % 2 == 0 ? progress : 1.0 - progress).o2r();
+
+      let ballImage = player.skin.get("sliderb0");
+      ctx.save();
+      ctx.translate(-position.x + ballpoint.x, -position.y + ballpoint.y);
+      ctx.drawImage(ballImage, -CS / 2, -CS / 2, CS, CS);
+      ctx.restore();
+    };
 
     // before the slider's hit time:
     //  - TODO: fade it in (possibly?)

@@ -34,8 +34,8 @@ class Player {
 
     // DEBUG: draw actual playfield!!
     ctx.save();
-    let topLeft = (new Vector(64, 48)).o2r();
-    let bottomRight = (new Vector(576, 432)).o2r();
+    let topLeft = (new Vector(0, 0)).o2r();
+    let bottomRight = (new Vector(512, 384)).o2r();
     ctx.strokeStyle = "red";
     ctx.strokeText("PLAYFIELD", topLeft.x, topLeft.y);
     ctx.strokeRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x,
@@ -43,8 +43,7 @@ class Player {
     ctx.restore();
 
     // draw hit objects!
-    for (let i = this.beatmap.HitObjects.length - 1; i >= this.objIndex;
-      --i) {
+    for (let i = this.beatmap.HitObjects.length - 1; i >= this.objIndex; --i) {
       let obj = this.beatmap.HitObjects[i];
       if (obj.startTime > timestamp + this.beatmap.ReactionTime)
         continue;
@@ -59,8 +58,7 @@ class Player {
       ctx.save();
       ctx.globalAlpha = i / this.replay.cursorHistory.length;
 
-      let current =
-                this.replay.cursorHistory[i].add(new Vector(64, 48)).o2r();
+      let current = this.replay.cursorHistory[i].o2r();
       ctx.drawImage(this.skin.resources["cursortrail"],
         current.x - constants.CURSOR_SIZE / 2,
         current.y - constants.CURSOR_SIZE / 2,
@@ -68,7 +66,7 @@ class Player {
       ctx.restore();
     }
     ctx.save();
-    let realCursorPosition = cursor.position.add(new Vector(64, 48)).o2r();
+    let realCursorPosition = cursor.position.o2r();
     ctx.drawImage(this.skin.resources["cursor"],
       realCursorPosition.x - constants.CURSOR_SIZE / 2,
       realCursorPosition.y - constants.CURSOR_SIZE / 2,

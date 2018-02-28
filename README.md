@@ -19,7 +19,8 @@ Roadmap
   - [x] draw hit circles
   - [x] calculate bezier slider shapes
     - [ ] sliders a bit more transparent
-    - [ ] slider ticks and ball
+    - [ ] slider ticks
+    - [x] slider ball
   - [ ] follow points
   - [ ] hud
     - [ ] health bar

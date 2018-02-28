@@ -49,22 +49,22 @@ class Reader {
 // contains only the ones that apply to standard
 // fuck minigames lol
 const modmask = {
-  None : 0,
-  NoFail : 1,
-  Easy : 2,
-  NoVideo : 4,
-  Hidden : 8,
-  HardRock : 16,
+  None :        0,
+  NoFail :      1,
+  Easy :        2,
+  NoVideo :     4,
+  Hidden :      8,
+  HardRock :    16,
   SuddenDeath : 32,
-  DoubleTime : 64,
-  Relax : 128,
-  HalfTime : 256,
-  Nightcore : 512,
-  Flashlight : 1024,
-  Autoplay : 2048,
-  SpunOut : 4096,
-  Relax2 : 8192,
-  Perfect : 16384
+  DoubleTime :  64,
+  Relax :       128,
+  HalfTime :    256,
+  Nightcore :   512,
+  Flashlight :  1024,
+  Autoplay :    2048,
+  SpunOut :     4096,
+  Relax2 :      8192,
+  Perfect :     16384
 };
 
 class Replay {
@@ -120,9 +120,9 @@ class Replay {
     let parsedMovementData = movementData.split(",").map(function(line) {
       let parts = line.split("|");
       return {
-        dt : parseInt(parts[0]),
+        dt :       parseInt(parts[0]),
         position : new Vector(parseFloat(parts[1]), parseFloat(parts[2])),
-        keyBits : parseInt(parts[3])
+        keyBits :  parseInt(parts[3])
       };
     });
     this.cursorPositions = parsedMovementData.slice(0);

@@ -54,8 +54,8 @@ let readFileAsync = function(filename) {
 let record = function(canvas, recorder) {
   return new Promise(function(resolve) {
     let stream = canvas.jpegStream({
-      bufsize : 4096,    // output buffer size in bytes, default: 4096
-      quality : 75,      // JPEG quality (0-100) default: 75
+      bufsize :     4096, // output buffer size in bytes, default: 4096
+      quality :     75, // JPEG quality (0-100) default: 75
       progressive : true // true for progressive compression, default: false
     });
     stream.on("data", function(chunk) { recorder.stdin.write(chunk); });

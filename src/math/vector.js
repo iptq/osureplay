@@ -1,6 +1,8 @@
 const constants = require("../constants");
 
-const xratio = constants.FULL_WIDTH / 640, yratio = constants.FULL_HEIGHT / 480;
+const yoffset = Math.floor((constants.FULL_HEIGHT - constants.ACTUAL_HEIGHT) / 2);
+const xoffset = Math.floor((constants.FULL_WIDTH - constants.ACTUAL_WIDTH) / 2);
+const ratio = constants.ACTUAL_HEIGHT / 384.0;
 
 class Vector {
   constructor(_x, _y) {
@@ -32,7 +34,8 @@ class Vector {
   }
   o2r() {
     // osu!px to real coordinates
-    return new Vector(this.x * xratio, this.y * yratio);
+    const offset = new Vector(xoffset, yoffset);
+    return this.smul(ratio).add(offset);
   }
   get m() {
     // magnitude
@@ -41,6 +44,7 @@ class Vector {
   get m2() { return this.x * this.x + this.y * this.y; }
   add(v) { return new Vector(this.x + v.x, this.y + v.y); }
   sub(v) { return new Vector(this.x - v.x, this.y - v.y); }
+  dot(v) { return new Vector(this.x * v.x, this.y * v.y); }
   smul(c) { return new Vector(c * this.x, c * this.y); }
   norm() { return new Vector(this.x / this.m, this.y / this.m); }
   toString(separator) {
