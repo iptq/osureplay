@@ -1,20 +1,23 @@
 const fs = require("fs");
 
-const Canvas = require("canvas"), Image = Canvas.Image;
+const Canvas = require("canvas");
 const lzma = require("lzma");
 const unzip = require("unzip");
 
 let decompressLZMA = async function(data) {
   return new Promise(function(resolve) {
-    lzma.decompress(data, function(result, err) { resolve(result); })
+    lzma.decompress(data, function(result, err) {
+      if (err) { process.exit(1); }
+      resolve(result);
+    });
   });
 };
 
 let extract = function(zip, folder) {
   return new Promise(function(resolve) {
     fs.createReadStream(zip)
-        .pipe(unzip.Extract({path : folder}))
-        .on("close", function() { resolve(); });
+      .pipe(unzip.Extract({path : folder}))
+      .on("close", function() { resolve(); });
     console.log("Extraction complete.");
   });
 };

@@ -73,7 +73,8 @@ let main = async function() {
   let mapFile = null;
   for (let filename of files) {
     if (filename.endsWith(".osu")) {
-      if (replay.beatmapHash === await(md5File(mapFolder + "/" + filename))) {
+      if (replay.beatmapHash ===
+                await(md5File(mapFolder + "/" + filename))) {
         mapFile = mapFolder + "/" + filename;
         break;
       }
@@ -90,17 +91,17 @@ let main = async function() {
 
   beatmap.BackgroundImage = new Image();
   beatmap.BackgroundImage.src =
-      await utils.readFileAsync(path.join(mapFolder, beatmap.bgFilename));
+        await utils.readFileAsync(path.join(mapFolder, beatmap.bgFilename));
 
   this.mp3duration =
-      await mp3Duration(path.join(mapFolder, beatmap.AudioFilename));
-  console.log("Audio Length: " + mp3duration);
-  this.frameCount = Math.ceil(mp3duration * constants.FPS);
+        await mp3Duration(path.join(mapFolder, beatmap.AudioFilename));
+  console.log("Audio Length: " + this.mp3duration);
+  this.frameCount = Math.ceil(this.mp3duration * constants.FPS);
 
   // load skin
-  let skin = new Skin();
+  let skin = new Skin(constants.SKIN_DIR);
   await skin.load();
-  skin.options = await skin.parseIni();
+  skin.options = await skin.parseINI();
 
   // prepare canvas
   let canvas = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
@@ -115,8 +116,8 @@ let main = async function() {
   //
   // process frames
   //
-  // let END = 300;
-  let END = this.frameCount;
+  let END = 300;
+  // let END = this.frameCount;
   console.log(`beginning rendering (${this.frameCount} frames)...`);
   process.stdout.write("\rProcessing 0%");
   for (let frame = 0; frame < END; ++frame) {
@@ -141,8 +142,10 @@ let main = async function() {
     // mix audio
     var mixer = child_process.spawn("ffmpeg", [
       "-y", "-i", path.join(folderName, "noaudio.mp4"), "-itsoffset",
-      "00:00:" + "00", "-i", path.join(mapFolder, beatmap.AudioFilename),
-      "-vcodec", "copy", "-acodec", "libmp3lame", "-shortest", outputFile
+      "00:00:" +
+                "00",
+      "-i", path.join(mapFolder, beatmap.AudioFilename), "-vcodec",
+      "copy", "-acodec", "libmp3lame", "-shortest", outputFile
     ]);
 
     mixer.stderr.on("data", function(data) { process.stdout.write(data); });

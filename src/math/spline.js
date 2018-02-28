@@ -17,7 +17,7 @@ class Spline {
   static linear(cs, points, length) {
     if (points.length != 2)
       throw new Error(
-          "Linear slider with the wrong number of control points (expected: 2, got: " +
+        "Linear slider with the wrong number of control points (expected: 2, got: " +
           points.length + ")");
 
     return new LinearSpline(cs, points, length);
@@ -25,7 +25,7 @@ class Spline {
   static perfect(cs, points, length) {
     if (points.length != 3)
       throw new Error(
-          "Perfect slider with the wrong number of control points (expected: 3, got: " +
+        "Perfect slider with the wrong number of control points (expected: 3, got: " +
           points.length + ")");
 
     // if they're on a line, abort mission now
@@ -51,7 +51,7 @@ class Spline {
     this.overlay = new Canvas(constants.FULL_WIDTH, constants.FULL_HEIGHT);
 
     let c1 = this.overlay.getContext("2d"), c2 = this.border.getContext("2d"),
-        c3 = this.body.getContext("2d");
+      c3 = this.body.getContext("2d");
     var origin = this.points[0].add(new Vector(64, 48)).o2r();
 
     c1.save();

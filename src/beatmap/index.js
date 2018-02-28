@@ -2,13 +2,13 @@ const fs = require("fs");
 
 const Color = require("../color");
 const HitObject = require("./hitObject"), HitCircle = HitObject.HitCircle,
-      Slider = HitObject.Slider, Spinner = HitObject.Spinner;
+  Slider = HitObject.Slider, Spinner = HitObject.Spinner;
 const TimingPoint = require("./timingPoint");
 const constants = require("../constants");
 const utils = require("../utils");
 
 const sectionPattern = /^\[([a-zA-Z0-9]+)\]$/,
-      keyPairPattern = /^([a-zA-Z0-9]+)[ ]*:[ ]*(.+)?$/;
+  keyPairPattern = /^([a-zA-Z0-9]+)[ ]*:[ ]*(.+)?$/;
 
 class Beatmap {
   constructor() {}
@@ -146,8 +146,8 @@ class Beatmap {
       if (i === 0 || hitObject.newCombo) { // or spinner or break apparently
         comboNumber = 1;
         comboColor = (comboColor + 1 + (hitObject instanceof HitObject.Spinner
-                                            ? hitObject.customColor
-                                            : 0)) %
+          ? hitObject.customColor
+          : 0)) %
                      beatmap.ComboColors.length;
       } else {
         comboNumber += 1;
@@ -179,7 +179,7 @@ class Beatmap {
       } else if (members[0] == '2' && /^[0-9]+$/.test(members[1]) &&
                  /^[0-9]+$/.test(members[2])) {
         beatmap.breakTimes.push(
-            {startTime : parseInt(members[1]), endTime : parseInt(members[2])});
+          {startTime : parseInt(members[1]), endTime : parseInt(members[2])});
       }
     }
 

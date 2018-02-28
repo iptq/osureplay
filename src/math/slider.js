@@ -91,8 +91,8 @@ class SliderMath {
 
     var nx = Math.cos(angle), ny = Math.sin(angle);
     return new Vector(
-        nx * (point.x - center.x) - ny * (point.y - center.y) + center.x,
-        ny * (point.x - center.x) + nx * (point.y - center.y) + center.y);
+      nx * (point.x - center.x) - ny * (point.y - center.y) + center.x,
+      ny * (point.x - center.x) + nx * (point.y - center.y) + center.y);
   }
 }
 

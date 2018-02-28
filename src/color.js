@@ -7,7 +7,7 @@ class Color {
     blue = Math.floor(Math.min(blue, 255));
 
     var redH = red.toString(16), greenH = green.toString(16),
-        blueH = blue.toString(16);
+      blueH = blue.toString(16);
 
     return redH.pad(2) + greenH.pad(2) + blueH.pad(2);
   }

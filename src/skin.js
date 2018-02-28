@@ -32,7 +32,8 @@ const names = [
 ];
 
 class Skin {
-  constructor() {
+  constructor(dir) {
+    this.dir = dir;
     this.resources = {};
     this.options = {};
   }
@@ -42,7 +43,7 @@ class Skin {
       // read images one by one
       this.resources[names[i]] = new Image();
       this.resources[names[i]].src = await utils.readFileAsync(
-          path.join(constants.SKIN_DIR, names[i] + ".png"));
+        path.join(this.dir, names[i] + ".png"));
       process.stdout.write("\rLoading images... (" +
                            Math.round((i + 1) * 10000.0 / names.length) / 100 +
                            "%)  ");
@@ -62,9 +63,9 @@ class Skin {
     // adds an image obj to the dict
     this.resources[name] = image;
   }
-  async parseIni(skinname) {
+  async parseINI() {
     let content =
-        await utils.readFileAsync(path.join(constants.SKIN_DIR, "skin.ini"));
+        await utils.readFileAsync(path.join(this.dir, "skin.ini"));
     var skin = {};
     var keyValReg = /^([a-zA-Z0-9]+)[ ]*:[ ]*(.+)$/;
     content.toString().split(/[\n\r]+/).forEach(function(line) {

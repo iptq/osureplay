@@ -1,7 +1,6 @@
 const Canvas = require("canvas");
 
 const Vector = require("../math/vector");
-const SliderMath = require("../math/slider");
 const Spline = require("../math/spline");
 const constants = require("../constants");
 const utils = require("../utils");
@@ -89,7 +88,7 @@ class HitObject {
         for (i = 1; i < points.length; i += 1) {
           var coordinates = points[i].split(":");
           properties.points.push(
-              new Vector(parseInt(coordinates[0]), parseInt(coordinates[1])));
+            new Vector(parseInt(coordinates[0]), parseInt(coordinates[1])));
         }
       }
       var edgeSounds = [];
@@ -138,10 +137,10 @@ class HitObject {
     let stackOffset = this.radius / 20;
     let stackVector = new Vector(stackOffset, stackOffset);
     return this.position.add(new Vector(64, 48))
-        .o2r()
-        .sub(stackVector.smul(this.stackHeight));
+      .o2r()
+      .sub(stackVector.smul(this.stackHeight));
   }
-  render(player) { throw "Not implemented."; }
+  render(_) { throw "Not implemented."; }
 }
 
 class HitCircle extends HitObject {
@@ -162,16 +161,16 @@ class HitCircle extends HitObject {
                              player.beatmap.ReactionTime +
                          1);
       ctx.drawImage(player.skin.get("approachcircle", {tint : this.comboColor}),
-                    -radius / 2, -radius / 2, radius, radius);
+        -radius / 2, -radius / 2, radius, radius);
     };
     let drawHitCircle = (fadeOutPercent = 0) => {
       ctx.save();
       let cs = CS * (1 + 0.5 * fadeOutPercent);
       ctx.globalAlpha = 1 - fadeOutPercent;
       ctx.drawImage(player.skin.get("hitcircle", {tint : this.comboColor}),
-                    -cs / 2, -cs / 2, cs, cs);
+        -cs / 2, -cs / 2, cs, cs);
       ctx.drawImage(player.skin.get("hitcircleoverlay"), -cs / 2, -cs / 2, cs,
-                    cs);
+        cs);
 
       let fixedNumberHeight = cs * 0.3; // totally arbitrary
       let fullNumberWidth = 0;
@@ -187,7 +186,7 @@ class HitCircle extends HitObject {
       for (var i = 0; i < numberData.length; ++i) {
         let [image, width] = numberData[i];
         ctx.drawImage(image, x, -fixedNumberHeight / 2, width,
-                      fixedNumberHeight);
+          fixedNumberHeight);
         x += width;
       }
       ctx.restore();
@@ -259,16 +258,16 @@ class Slider extends HitObject {
                              player.beatmap.ReactionTime +
                          1);
       ctx.drawImage(player.skin.get("approachcircle", {tint : this.comboColor}),
-                    -radius / 2, -radius / 2, radius, radius);
+        -radius / 2, -radius / 2, radius, radius);
     };
     let drawHitCircle = (fadeOutPercent = 0) => {
       ctx.save();
       let cs = CS * (1 + 0.5 * fadeOutPercent);
       ctx.globalAlpha = 1 - fadeOutPercent;
       ctx.drawImage(player.skin.get("hitcircle", {tint : this.comboColor}),
-                    -cs / 2, -cs / 2, cs, cs);
+        -cs / 2, -cs / 2, cs, cs);
       ctx.drawImage(player.skin.get("hitcircleoverlay"), -cs / 2, -cs / 2, cs,
-                    cs);
+        cs);
 
       let fixedNumberHeight = cs * 0.3; // totally arbitrary
       let fullNumberWidth = 0;
@@ -284,7 +283,7 @@ class Slider extends HitObject {
       for (var i = 0; i < numberData.length; ++i) {
         let [image, width] = numberData[i];
         ctx.drawImage(image, x, -fixedNumberHeight / 2, width,
-                      fixedNumberHeight);
+          fixedNumberHeight);
         x += width;
       }
       ctx.restore();
@@ -300,8 +299,8 @@ class Slider extends HitObject {
       let c1 = tmp.getContext("2d");
       c1.globalAlpha = 0.9;
       c1.drawImage(
-          utils.tint(`slider:${this.id}`, this.spline.body, this.comboColor), 0,
-          0);
+        utils.tint(`slider:${this.id}`, this.spline.body, this.comboColor), 0,
+        0);
       c1.drawImage(this.spline.overlay, 0, 0);
 
       ctx.drawImage(tmp, 0, 0);
@@ -358,6 +357,7 @@ class Spinner extends HitObject {
   }
   render(player, timestamp) {
     // f
+    (function() { })(timestamp);
   }
   hrFlip() {}
 }
