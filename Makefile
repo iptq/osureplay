@@ -10,8 +10,8 @@ SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -std=c++14 -static -g -Wall -Werror
 
-LIB := `pkg-config --libs cairo`
-INC := -Iinclude `pkg-config --cflags cairo`
+LIB := `pkg-config --libs cairo libzip`
+INC := -Iinclude `pkg-config --cflags cairo libzip`
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
