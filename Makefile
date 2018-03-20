@@ -5,7 +5,7 @@ SRCDIR := src
 BUILDDIR := build
 TARGET := bin/osureplay
 
-SRCEXT := cpp
+SRCEXT := cc
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -std=c++14 -static -g -Wall -Werror

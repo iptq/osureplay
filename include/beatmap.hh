@@ -3,9 +3,7 @@
 
 namespace osureplay {
 
-enum GameMode {
-    Standard, Taiko, Catch, Mania
-};
+enum GameMode { Standard, Taiko, Catch, Mania };
 
 struct Difficulty {
     double ApproachRate;
@@ -19,7 +17,6 @@ class Beatmap {
     struct Difficulty difficultyOriginal;
     struct Difficulty difficultyModified;
 };
-
 } // namespace osureplay
 
 #endif
