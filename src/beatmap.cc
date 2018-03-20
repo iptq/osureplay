@@ -1,3 +1,3 @@
-#include "beatmap.hpp"
+#include "beatmap.hh"
 
 namespace osureplay {}

@@ -11,7 +11,7 @@ OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -std=c++14 -static -g -Wall -Werror
 
 LIB := `pkg-config --libs cairo libzip`
-INC := -Iinclude `pkg-config --cflags cairo libzip`
+INC := `pkg-config --cflags cairo libzip`
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."

@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "player.hpp"
+#include "player.hh"
 
 int main(int argc, char **argv) {
     osureplay::Player player;

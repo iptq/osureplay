@@ -1,6 +1,6 @@
 #include <string>
 
-#include "player.hpp"
+#include "player.hh"
 
 namespace osureplay {
 
