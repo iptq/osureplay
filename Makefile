@@ -8,10 +8,10 @@ TARGET := bin/osureplay
 SRCEXT := cc
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -std=c++14 -static -g -Wall -Werror
 
-LIB := `pkg-config --libs cairo libzip`
-INC := `pkg-config --cflags cairo libzip`
+LIB := `pkg-config --libs cairo libzip libavcodec libavformat libavutil`
+INC := `pkg-config --cflags cairo libzip libavcodec libavformat libavutil`
+CFLAGS := $(INCLUDE) -std=c++14 -static -g -Wall -Werror
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."

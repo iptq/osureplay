@@ -1,8 +1,10 @@
 #ifndef src_player_h
 #define src_player_h
 
-#include "beatmap.hpp"
-#include "replay.hpp"
+#include <string>
+
+#include "beatmap.hh"
+#include "replay.hh"
 
 namespace osureplay {
 
@@ -17,7 +19,6 @@ class Player {
     Beatmap beatmap_;
     Replay replay_;
 };
-
 } // namespace osureplay
 
 #endif
